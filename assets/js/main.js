@@ -31,7 +31,7 @@ document.addEventListener('DOMContentLoaded', function() {
             setTimeout(function() {
                 alert.remove();
             }, 300);
-        }, 5000);
+        }, 15000);
     });
 
     // Form validation

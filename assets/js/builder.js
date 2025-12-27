@@ -238,24 +238,32 @@ class PokerTableBuilder {
         const speedclothColors = document.querySelector('.speedcloth-colors');
         const velveeteenColors = document.querySelector('.velveteen-colors');
 
+        // Get current selected index before switching
+        const currentSet = this.config.surfaceMaterial === 'speedcloth' ? velveeteenColors : speedclothColors;
+        const newSet = this.config.surfaceMaterial === 'speedcloth' ? speedclothColors : velveeteenColors;
+
+        const currentInputs = currentSet.querySelectorAll('input');
+        const newInputs = newSet.querySelectorAll('input');
+
+        // Find which index was selected in the old set
+        let selectedIndex = 0;
+        currentInputs.forEach((input, index) => {
+            if (input.checked) selectedIndex = index;
+        });
+
         if (this.config.surfaceMaterial === 'speedcloth') {
             speedclothColors.style.display = 'flex';
             velveeteenColors.style.display = 'none';
-            // Select first speedcloth color
-            const firstColor = speedclothColors.querySelector('input');
-            if (firstColor) {
-                firstColor.checked = true;
-                this.config.surfaceColor = firstColor.value;
-            }
         } else {
             speedclothColors.style.display = 'none';
             velveeteenColors.style.display = 'flex';
-            // Select first velveteen color
-            const firstColor = velveeteenColors.querySelector('input');
-            if (firstColor) {
-                firstColor.checked = true;
-                this.config.surfaceColor = firstColor.value;
-            }
+        }
+
+        // Select same index position in new set (or first if out of range)
+        const targetIndex = Math.min(selectedIndex, newInputs.length - 1);
+        if (newInputs[targetIndex]) {
+            newInputs[targetIndex].checked = true;
+            this.config.surfaceColor = newInputs[targetIndex].value;
         }
     }
 

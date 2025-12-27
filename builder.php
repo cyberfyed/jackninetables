@@ -255,7 +255,7 @@ require_once 'includes/header.php';
                             <strong>Email Not Verified</strong>
                             <p>Please verify your email to save designs and request quotes.</p>
                         </div>
-                        <a href="<?= SITE_URL ?>/resend-verification.php" class="btn btn-sm btn-outline">Verify Now</a>
+                        <a href="<?= SITE_URL ?>/resend-verification.php" class="btn btn-sm btn-outline">Resend Verification Email</a>
                     </div>
                     <?php endif; ?>
 

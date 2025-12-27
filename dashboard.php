@@ -38,7 +38,7 @@ require_once 'includes/header.php';
                 <strong>Verify Your Email</strong>
                 <p>Please verify your email address to save designs and request quotes.</p>
             </div>
-            <a href="<?= SITE_URL ?>/resend-verification.php" class="btn btn-primary">Verify Now</a>
+            <a href="<?= SITE_URL ?>/resend-verification.php" class="btn btn-primary">Resend Verification Email</a>
         </div>
         <?php endif; ?>
 

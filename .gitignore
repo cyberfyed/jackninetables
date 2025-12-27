@@ -1,0 +1,37 @@
+# Sensitive config files (contain passwords/API keys)
+config/database.php
+config/email.php
+
+# Environment files
+.env
+.env.local
+.env.production
+
+# IDE/Editor folders
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Claude Code session files
+.claude/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Uploaded files (if any)
+uploads/*
+!uploads/.gitkeep
+
+# Cache
+cache/
+tmp/
+
+# Dev screenshots/test images
+screen*.jpg
+table.jpg

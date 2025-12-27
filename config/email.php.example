@@ -1,0 +1,24 @@
+<?php
+
+/**
+ * Email Configuration
+ */
+
+// Email Driver: 'smtp' for Mailtrap/SMTP, 'sendgrid' for SendGrid API
+define('MAIL_DRIVER', 'smtp');  // Change to 'sendgrid' for production
+
+// SendGrid API Key (used when MAIL_DRIVER = 'sendgrid')
+define('SENDGRID_API_KEY', 'your_sendgrid_api_key_here');
+
+// SMTP Settings for Mailtrap (used when MAIL_DRIVER = 'smtp')
+define('SMTP_HOST', 'sandbox.smtp.mailtrap.io');
+define('SMTP_PORT', 2525);
+define('SMTP_USERNAME', 'your_mailtrap_username');
+define('SMTP_PASSWORD', 'your_mailtrap_password');
+
+// Email settings
+define('MAIL_FROM_ADDRESS', 'noreply@jackninetables.com');
+define('MAIL_FROM_NAME', 'Jack Nine Tables');
+
+// Admin email for notifications (contact form, quote requests)
+define('ADMIN_EMAIL', 'admin@jackninetables.com');

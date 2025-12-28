@@ -26,6 +26,16 @@ $colorNames = [
     '#252525' => 'Black',
 ];
 
+// Status display mapping
+$statusLabels = [
+    'quote_started' => 'Quote Started',
+    'price_sent' => 'Price Sent',
+    'deposit_paid' => 'Deposit Paid',
+    'invoice_sent' => 'Invoice Sent',
+    'paid_in_full' => 'Paid in Full',
+    'cancelled' => 'Cancelled'
+];
+
 // Filters
 $filters = [
     'status' => $_GET['status'] ?? '',
@@ -57,10 +67,11 @@ $queryString = http_build_query($queryParams);
             <label for="status">Status:</label>
             <select name="status" id="status" class="filter-select" onchange="this.form.submit()">
                 <option value="">All Statuses</option>
-                <option value="quote" <?= $filters['status'] === 'quote' ? 'selected' : '' ?>>Quote</option>
-                <option value="pending" <?= $filters['status'] === 'pending' ? 'selected' : '' ?>>Pending</option>
-                <option value="in_progress" <?= $filters['status'] === 'in_progress' ? 'selected' : '' ?>>In Progress</option>
-                <option value="completed" <?= $filters['status'] === 'completed' ? 'selected' : '' ?>>Completed</option>
+                <option value="quote_started" <?= $filters['status'] === 'quote_started' ? 'selected' : '' ?>>Quote Started</option>
+                <option value="price_sent" <?= $filters['status'] === 'price_sent' ? 'selected' : '' ?>>Price Sent</option>
+                <option value="deposit_paid" <?= $filters['status'] === 'deposit_paid' ? 'selected' : '' ?>>Deposit Paid</option>
+                <option value="invoice_sent" <?= $filters['status'] === 'invoice_sent' ? 'selected' : '' ?>>Invoice Sent</option>
+                <option value="paid_in_full" <?= $filters['status'] === 'paid_in_full' ? 'selected' : '' ?>>Paid in Full</option>
                 <option value="cancelled" <?= $filters['status'] === 'cancelled' ? 'selected' : '' ?>>Cancelled</option>
             </select>
         </div>
@@ -130,7 +141,7 @@ $queryString = http_build_query($queryParams);
                         </td>
                         <td>
                             <span class="status-badge <?= $order['status'] ?>">
-                                <?= ucfirst(str_replace('_', ' ', $order['status'])) ?>
+                                <?= $statusLabels[$order['status']] ?? ucfirst(str_replace('_', ' ', $order['status'])) ?>
                             </span>
                         </td>
                         <td>

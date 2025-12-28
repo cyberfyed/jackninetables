@@ -1,15 +1,27 @@
 <?php
 session_start();
 
+// Load environment variables from .env file
+$envFile = __DIR__ . '/../.env';
+if (file_exists($envFile)) {
+    $lines = file($envFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+    foreach ($lines as $line) {
+        if (strpos($line, '#') === 0) continue; // Skip comments
+        if (strpos($line, '=') === false) continue;
+        list($key, $value) = explode('=', $line, 2);
+        $_ENV[trim($key)] = trim($value);
+    }
+}
+
 // Site configuration
 define('SITE_NAME', 'Jack Nine Tables');
 define('SITE_URL', 'http://localhost/jackninetablesnew');
 define('SITE_EMAIL', 'info@jackninetables.com');
 
-// PayPal configuration
-define('PAYPAL_CLIENT_ID', 'AeRSvMBrV50JMm36B7ec2d-O8Bq2WiSX8fyRRss_1FljA33fpp-7Dy4yfUatMs8uWdIcNxEvxd67WaDf');
-define('PAYPAL_SECRET', 'ELjyFhVba1FH23Q6VhtwSK_HE1-ZpOFbmUD7x2wv2SicBOu-rL9LIGvXkL-uk3CpTJ69tbr6IKQjxX9V');
-define('PAYPAL_MODE', 'sandbox'); // Change to 'live' for production
+// PayPal configuration (loaded from .env)
+define('PAYPAL_CLIENT_ID', $_ENV['PAYPAL_CLIENT_ID'] ?? '');
+define('PAYPAL_SECRET', $_ENV['PAYPAL_SECRET'] ?? '');
+define('PAYPAL_MODE', $_ENV['PAYPAL_MODE'] ?? 'sandbox');
 define('DEPOSIT_PERCENTAGE', 25); // 25% deposit required
 
 // Include database

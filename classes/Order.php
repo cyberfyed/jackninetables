@@ -148,7 +148,7 @@ class Order {
                       deposit_paid_at = NOW(),
                       paypal_order_id = :paypal_order_id,
                       paypal_transaction_id = :transaction_id,
-                      status = 'pending'
+                      status = 'deposit_paid'
                   WHERE id = :id";
 
         $stmt = $this->conn->prepare($query);
@@ -174,8 +174,8 @@ class Order {
             return false;
         }
 
-        // Must be in quote status (admin has priced it, awaiting customer payment)
-        if ($order['status'] !== 'quote') {
+        // Must be in price_sent status (admin has sent quote, awaiting customer deposit)
+        if ($order['status'] !== 'price_sent') {
             return false;
         }
 
@@ -187,5 +187,22 @@ class Order {
      */
     public function getOrderPrice($order) {
         return $order['final_price'] ?? 0;
+    }
+
+    /**
+     * Record final payment
+     */
+    public function recordFinalPayment($orderId, $transactionId) {
+        $query = "UPDATE {$this->table}
+                  SET status = 'paid_in_full',
+                      final_payment_transaction_id = :transaction_id,
+                      final_paid_at = NOW()
+                  WHERE id = :id";
+
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(':transaction_id', $transactionId);
+        $stmt->bindParam(':id', $orderId);
+
+        return $stmt->execute();
     }
 }

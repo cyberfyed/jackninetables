@@ -38,17 +38,26 @@ CREATE TABLE IF NOT EXISTS table_designs (
 );
 
 -- Orders/Quotes
+-- Status flow: quote_started -> price_sent -> deposit_paid -> invoice_sent -> paid_in_full
+-- Can be cancelled at any point
 CREATE TABLE IF NOT EXISTS orders (
     id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL,
     design_id INT,
     order_number VARCHAR(20) UNIQUE,
-    status ENUM('quote', 'pending', 'in_progress', 'completed', 'cancelled') DEFAULT 'quote',
+    status ENUM('quote_started', 'price_sent', 'deposit_paid', 'invoice_sent', 'paid_in_full', 'cancelled') DEFAULT 'quote_started',
     design_data JSON NOT NULL,
     notes TEXT,
     admin_notes TEXT,
-    estimated_price DECIMAL(10, 2),
     final_price DECIMAL(10, 2),
+    -- Deposit payment tracking
+    deposit_amount DECIMAL(10, 2) DEFAULT NULL,
+    deposit_paid_at DATETIME DEFAULT NULL,
+    paypal_order_id VARCHAR(50) DEFAULT NULL,
+    paypal_transaction_id VARCHAR(50) DEFAULT NULL,
+    -- Final payment tracking
+    final_payment_transaction_id VARCHAR(50) DEFAULT NULL,
+    final_paid_at DATETIME DEFAULT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
@@ -105,8 +114,22 @@ CREATE INDEX idx_messages_read ON contact_messages(is_read);
 -- ALTER TABLE users ADD COLUMN is_admin TINYINT(1) DEFAULT 0 AFTER email_verified;
 -- ALTER TABLE orders ADD COLUMN admin_notes TEXT AFTER notes;
 
--- Payment tracking columns for orders
+-- Deposit payment tracking columns
 -- ALTER TABLE orders ADD COLUMN deposit_amount DECIMAL(10,2) DEFAULT NULL AFTER final_price;
 -- ALTER TABLE orders ADD COLUMN deposit_paid_at DATETIME DEFAULT NULL AFTER deposit_amount;
 -- ALTER TABLE orders ADD COLUMN paypal_order_id VARCHAR(50) DEFAULT NULL AFTER deposit_paid_at;
 -- ALTER TABLE orders ADD COLUMN paypal_transaction_id VARCHAR(50) DEFAULT NULL AFTER paypal_order_id;
+
+-- Final payment tracking columns
+-- ALTER TABLE orders ADD COLUMN final_payment_transaction_id VARCHAR(50) DEFAULT NULL AFTER paypal_transaction_id;
+-- ALTER TABLE orders ADD COLUMN final_paid_at DATETIME DEFAULT NULL AFTER final_payment_transaction_id;
+
+-- Remove estimated_price column (now using single price field)
+-- ALTER TABLE orders DROP COLUMN estimated_price;
+
+-- Update order status ENUM (run this to migrate existing statuses)
+-- ALTER TABLE orders MODIFY COLUMN status ENUM('quote_started', 'price_sent', 'deposit_paid', 'invoice_sent', 'paid_in_full', 'cancelled') DEFAULT 'quote_started';
+-- UPDATE orders SET status = 'quote_started' WHERE status = 'quote';
+-- UPDATE orders SET status = 'deposit_paid' WHERE status = 'pending';
+-- UPDATE orders SET status = 'paid_in_full' WHERE status = 'completed';
+-- UPDATE orders SET status = 'deposit_paid' WHERE status = 'in_progress';

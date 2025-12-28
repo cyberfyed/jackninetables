@@ -10,6 +10,16 @@ $orderModel = new Order($db->connect());
 
 $orders = $orderModel->getByUser($_SESSION['user_id']);
 
+// Status display mapping
+$statusLabels = [
+    'quote_started' => 'Quote Requested',
+    'price_sent' => 'Quote Ready',
+    'deposit_paid' => 'In Production',
+    'invoice_sent' => 'Ready for Pickup',
+    'paid_in_full' => 'Complete',
+    'cancelled' => 'Cancelled'
+];
+
 $pageTitle = 'My Orders';
 require_once 'includes/header.php';
 ?>
@@ -53,6 +63,8 @@ require_once 'includes/header.php';
                                 $orderPrice = $orderModel->getOrderPrice($o);
                                 $depositAmount = PayPal::calculateDeposit($orderPrice);
                                 $depositPaid = !empty($o['deposit_paid_at']);
+                                $remainingBalance = $orderPrice - ($o['deposit_amount'] ?? 0);
+                                $statusLabel = $statusLabels[$o['status']] ?? ucfirst(str_replace('_', ' ', $o['status']));
                                 ?>
                                 <tr>
                                     <td style="padding: 1rem; border-bottom: 1px solid var(--gray-200);">
@@ -72,9 +84,9 @@ require_once 'includes/header.php';
                                     </td>
                                     <td style="padding: 1rem; border-bottom: 1px solid var(--gray-200);">
                                         <span class="status-badge status-<?= $o['status'] ?>">
-                                            <?= ucfirst(str_replace('_', ' ', $o['status'])) ?>
+                                            <?= $statusLabel ?>
                                         </span>
-                                        <?php if ($depositPaid): ?>
+                                        <?php if ($depositPaid && $o['status'] !== 'cancelled'): ?>
                                             <div style="font-size: 0.75rem; color: var(--success); margin-top: 0.25rem;">
                                                 Deposit paid: $<?= number_format($o['deposit_amount'], 2) ?>
                                             </div>
@@ -93,14 +105,19 @@ require_once 'includes/header.php';
                                                 Pay Deposit<br>
                                                 <small>$<?= number_format($depositAmount, 2) ?></small>
                                             </a>
-                                        <?php elseif ($depositPaid && $o['status'] === 'pending'): ?>
-                                            <span style="color: var(--success); font-size: 0.85rem;">Awaiting Start</span>
-                                        <?php elseif ($o['status'] === 'in_progress'): ?>
-                                            <span style="color: var(--primary); font-size: 0.85rem;">Building</span>
-                                        <?php elseif ($o['status'] === 'completed'): ?>
-                                            <span style="color: var(--success); font-size: 0.85rem;">Complete</span>
-                                        <?php elseif ($o['status'] === 'quote' && !$orderPrice): ?>
+                                        <?php elseif ($o['status'] === 'quote_started'): ?>
                                             <span style="color: var(--gray-500); font-size: 0.85rem;">Awaiting Quote</span>
+                                        <?php elseif ($o['status'] === 'deposit_paid'): ?>
+                                            <span style="color: var(--primary); font-size: 0.85rem;">Building Your Table</span>
+                                        <?php elseif ($o['status'] === 'invoice_sent'): ?>
+                                            <a href="<?= SITE_URL ?>/pay-final.php?id=<?= $o['id'] ?>" class="btn btn-primary btn-sm">
+                                                Pay Balance<br>
+                                                <small>$<?= number_format($remainingBalance, 2) ?></small>
+                                            </a>
+                                        <?php elseif ($o['status'] === 'paid_in_full'): ?>
+                                            <span style="color: var(--success); font-size: 0.85rem;">Complete</span>
+                                        <?php elseif ($o['status'] === 'cancelled'): ?>
+                                            <span style="color: var(--danger); font-size: 0.85rem;">Cancelled</span>
                                         <?php else: ?>
                                             <span style="color: var(--gray-400);">—</span>
                                         <?php endif; ?>
@@ -116,10 +133,11 @@ require_once 'includes/header.php';
         <div style="margin-top: 2rem;">
             <h3>Order Status Guide</h3>
             <div style="display: flex; flex-wrap: wrap; gap: 1rem; margin-top: 1rem;">
-                <div><span class="status-badge status-quote">Quote</span> - Awaiting price estimate</div>
-                <div><span class="status-badge status-pending">Pending</span> - Awaiting confirmation</div>
-                <div><span class="status-badge status-in_progress">In Progress</span> - Being built</div>
-                <div><span class="status-badge status-completed">Completed</span> - Ready/Delivered</div>
+                <div><span class="status-badge status-quote_started">Quote Requested</span> - We're reviewing your design</div>
+                <div><span class="status-badge status-price_sent">Quote Ready</span> - Pay deposit to proceed</div>
+                <div><span class="status-badge status-deposit_paid">In Production</span> - Your table is being built</div>
+                <div><span class="status-badge status-invoice_sent">Ready for Pickup</span> - Pay balance for delivery</div>
+                <div><span class="status-badge status-paid_in_full">Complete</span> - Ready/Delivered</div>
             </div>
         </div>
     </div>
@@ -133,10 +151,11 @@ require_once 'includes/header.php';
     font-size: 0.8rem;
     font-weight: 600;
 }
-.status-quote { background: #e3f2fd; color: #1565c0; }
-.status-pending { background: #fff3e0; color: #ef6c00; }
-.status-in_progress { background: #e8f5e9; color: #2e7d32; }
-.status-completed { background: #e8f5e9; color: #2e7d32; }
+.status-quote_started { background: #e3f2fd; color: #1565c0; }
+.status-price_sent { background: #fff3e0; color: #ef6c00; }
+.status-deposit_paid { background: #e8f5e9; color: #2e7d32; }
+.status-invoice_sent { background: #fce4ec; color: #c2185b; }
+.status-paid_in_full { background: #e8f5e9; color: #1b5e20; }
 .status-cancelled { background: #ffebee; color: #c62828; }
 
 @media (max-width: 768px) {

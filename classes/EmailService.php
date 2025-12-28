@@ -709,4 +709,194 @@ HTML;
         $html = $this->wrapInLayout($content, 'New Deposit Payment');
         return $this->send(ADMIN_EMAIL, 'Deposit Received - Order ' . $orderNumber . ' - $' . $formattedDeposit, $html);
     }
+
+    /**
+     * Send quote price email to customer
+     */
+    public function sendQuotePriceEmail($to, $firstName, $orderNumber, $price, $depositAmount)
+    {
+        $formattedPrice = number_format($price, 2);
+        $formattedDeposit = number_format($depositAmount, 2);
+        $depositPercent = DEPOSIT_PERCENTAGE;
+        $siteUrl = SITE_URL;
+
+        $content = <<<HTML
+<h2 style="margin-top: 0;">Your Quote is Ready!</h2>
+<p>Hi {$firstName},</p>
+<p>Great news! We've reviewed your custom poker table design and have your quote ready.</p>
+<div class="highlight-box">
+    <h3 style="margin-top: 0; color: #1a472a;">Quote Details</h3>
+    <table class="info-table">
+        <tr>
+            <td>Order Number</td>
+            <td><strong>{$orderNumber}</strong></td>
+        </tr>
+        <tr>
+            <td>Total Price</td>
+            <td style="color: #1a472a; font-size: 1.4em; font-weight: bold;">\${$formattedPrice}</td>
+        </tr>
+        <tr>
+            <td>Deposit Required ({$depositPercent}%)</td>
+            <td style="font-size: 1.1em;">\${$formattedDeposit}</td>
+        </tr>
+    </table>
+</div>
+<div class="alert alert-info">
+    <strong>Ready to proceed?</strong> Pay your {$depositPercent}% deposit to secure your spot in our production queue. The deposit is non-refundable as we begin sourcing materials specifically for your table.
+</div>
+<p style="text-align: center;">
+    <a href="{$siteUrl}/my-orders.php" class="btn">View Quote & Pay Deposit</a>
+</p>
+<p>This quote is valid for 30 days. If you have any questions about your quote or the build process, don't hesitate to reach out!</p>
+<p>Thank you for choosing Jack Nine Tables!</p>
+HTML;
+
+        $html = $this->wrapInLayout($content, 'Your Quote is Ready');
+        return $this->send($to, 'Your Quote is Ready - Order ' . $orderNumber, $html);
+    }
+
+    /**
+     * Send final invoice email to customer
+     */
+    public function sendFinalInvoiceEmail($to, $firstName, $orderNumber, $remainingBalance, $totalPrice)
+    {
+        $formattedRemaining = number_format($remainingBalance, 2);
+        $formattedTotal = number_format($totalPrice, 2);
+        $depositPaid = number_format($totalPrice - $remainingBalance, 2);
+        $siteUrl = SITE_URL;
+
+        $content = <<<HTML
+<h2 style="margin-top: 0;">Your Table is Complete!</h2>
+<p>Hi {$firstName},</p>
+<p>Exciting news! Your custom poker table has been completed and is ready for delivery. Please complete your final payment to arrange shipping.</p>
+<div class="highlight-box">
+    <h3 style="margin-top: 0; color: #1a472a;">Final Invoice</h3>
+    <table class="info-table">
+        <tr>
+            <td>Order Number</td>
+            <td><strong>{$orderNumber}</strong></td>
+        </tr>
+        <tr>
+            <td>Total Price</td>
+            <td>\${$formattedTotal}</td>
+        </tr>
+        <tr>
+            <td>Deposit Paid</td>
+            <td style="color: #1a472a;">-\${$depositPaid}</td>
+        </tr>
+        <tr style="border-top: 2px solid #1a472a;">
+            <td><strong>Balance Due</strong></td>
+            <td style="color: #1a472a; font-size: 1.4em; font-weight: bold;">\${$formattedRemaining}</td>
+        </tr>
+    </table>
+</div>
+<div class="alert alert-warning">
+    <strong>Payment Required:</strong> Please complete your payment within 7 days to arrange delivery. We'll coordinate shipping details once payment is received.
+</div>
+<p style="text-align: center;">
+    <a href="{$siteUrl}/my-orders.php" class="btn">View Invoice & Pay</a>
+</p>
+<p>We can't wait for you to enjoy your new custom poker table! If you have any questions about delivery or setup, please let us know.</p>
+<p>Thank you for choosing Jack Nine Tables!</p>
+HTML;
+
+        $html = $this->wrapInLayout($content, 'Your Table is Complete - Final Invoice');
+        return $this->send($to, 'Final Invoice - Order ' . $orderNumber . ' - Balance Due: $' . $formattedRemaining, $html);
+    }
+
+    /**
+     * Send final payment confirmation to customer
+     */
+    public function sendFinalPaymentConfirmation($to, $firstName, $orderNumber, $amountPaid, $totalPrice)
+    {
+        $formattedAmount = number_format($amountPaid, 2);
+        $formattedTotal = number_format($totalPrice, 2);
+        $siteUrl = SITE_URL;
+
+        $content = <<<HTML
+<h2 style="margin-top: 0;">Payment Complete - Thank You!</h2>
+<p>Hi {$firstName},</p>
+<p>Your final payment has been received. Your custom poker table is now fully paid and ready for delivery!</p>
+<div class="highlight-box">
+    <h3 style="margin-top: 0; color: #1a472a;">Payment Confirmation</h3>
+    <table class="info-table">
+        <tr>
+            <td>Order Number</td>
+            <td><strong>{$orderNumber}</strong></td>
+        </tr>
+        <tr>
+            <td>Final Payment</td>
+            <td>\${$formattedAmount}</td>
+        </tr>
+        <tr>
+            <td>Total Paid</td>
+            <td style="color: #1a472a; font-size: 1.2em; font-weight: bold;">\${$formattedTotal}</td>
+        </tr>
+        <tr>
+            <td>Status</td>
+            <td style="color: #1a472a;"><strong>PAID IN FULL</strong></td>
+        </tr>
+    </table>
+</div>
+<div class="alert alert-info">
+    <strong>Delivery:</strong> We'll contact you shortly to coordinate delivery of your new poker table. If you have any special delivery instructions, please let us know!
+</div>
+<p style="text-align: center;">
+    <a href="{$siteUrl}/my-orders.php" class="btn btn-green">View Your Order</a>
+</p>
+<p>Thank you for choosing Jack Nine Tables. We hope you enjoy many great games at your new table!</p>
+HTML;
+
+        $html = $this->wrapInLayout($content, 'Payment Complete');
+        return $this->send($to, 'Payment Complete - Order ' . $orderNumber . ' Paid in Full', $html);
+    }
+
+    /**
+     * Send final payment notification to admin
+     */
+    public function sendFinalPaymentNotificationToAdmin($customerName, $customerEmail, $orderNumber, $amountPaid, $totalPrice)
+    {
+        $formattedAmount = number_format($amountPaid, 2);
+        $formattedTotal = number_format($totalPrice, 2);
+        $siteUrl = SITE_URL;
+
+        $content = <<<HTML
+<h2 style="margin-top: 0;">Final Payment Received!</h2>
+<p>Great news! A customer has completed their final payment and the order is ready for delivery.</p>
+<div class="highlight-box">
+    <h3 style="margin-top: 0; color: #1a472a;">Payment Details</h3>
+    <table class="info-table">
+        <tr>
+            <td>Order Number</td>
+            <td><strong>{$orderNumber}</strong></td>
+        </tr>
+        <tr>
+            <td>Customer</td>
+            <td>{$customerName}</td>
+        </tr>
+        <tr>
+            <td>Email</td>
+            <td><a href="mailto:{$customerEmail}">{$customerEmail}</a></td>
+        </tr>
+        <tr>
+            <td>Final Payment</td>
+            <td>\${$formattedAmount}</td>
+        </tr>
+        <tr>
+            <td>Total Collected</td>
+            <td style="color: #1a472a; font-size: 1.2em; font-weight: bold;">\${$formattedTotal}</td>
+        </tr>
+    </table>
+</div>
+<div class="alert alert-info">
+    <strong>Action Required:</strong> Contact the customer to arrange delivery of their completed table.
+</div>
+<p style="text-align: center;">
+    <a href="{$siteUrl}/admin/quotes.php" class="btn">View in Admin</a>
+</p>
+HTML;
+
+        $html = $this->wrapInLayout($content, 'Final Payment Received');
+        return $this->send(ADMIN_EMAIL, 'Final Payment - Order ' . $orderNumber . ' - $' . $formattedAmount, $html);
+    }
 }

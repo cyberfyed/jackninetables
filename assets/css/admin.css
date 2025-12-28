@@ -297,6 +297,38 @@
     font-weight: 600;
 }
 
+/* New workflow statuses */
+.status-badge.quote_started {
+    background: rgba(59, 130, 246, 0.1);
+    color: #3b82f6;
+}
+
+.status-badge.price_sent {
+    background: rgba(245, 158, 11, 0.1);
+    color: #f59e0b;
+}
+
+.status-badge.deposit_paid {
+    background: rgba(139, 92, 246, 0.1);
+    color: #8b5cf6;
+}
+
+.status-badge.invoice_sent {
+    background: rgba(236, 72, 153, 0.1);
+    color: #ec4899;
+}
+
+.status-badge.paid_in_full {
+    background: rgba(16, 185, 129, 0.1);
+    color: #10b981;
+}
+
+.status-badge.cancelled {
+    background: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+}
+
+/* Legacy statuses (for backwards compatibility) */
 .status-badge.quote {
     background: rgba(59, 130, 246, 0.1);
     color: #3b82f6;
@@ -317,11 +349,7 @@
     color: #10b981;
 }
 
-.status-badge.cancelled {
-    background: rgba(239, 68, 68, 0.1);
-    color: #ef4444;
-}
-
+/* Message statuses */
 .status-badge.unread {
     background: rgba(239, 68, 68, 0.1);
     color: #ef4444;

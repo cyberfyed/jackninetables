@@ -777,6 +777,217 @@ textarea.form-control {
 .hidden { display: none !important; }
 
 /* ========================================
+   FAQ Accordion
+   ======================================== */
+.faq-category {
+    margin-bottom: var(--space-2xl);
+}
+
+.faq-category h2 {
+    font-size: 1.5rem;
+    color: var(--primary);
+    margin-bottom: var(--space-lg);
+    padding-bottom: var(--space-sm);
+    border-bottom: 2px solid var(--gold);
+}
+
+.faq-item {
+    background: var(--white);
+    border-radius: var(--radius-md);
+    margin-bottom: var(--space-md);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+}
+
+.faq-question {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--space-lg);
+    background: var(--white);
+    border: none;
+    cursor: pointer;
+    text-align: left;
+    font-family: var(--font-body);
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--dark);
+    transition: all var(--transition-fast);
+}
+
+.faq-question:hover {
+    background: var(--gray-100);
+}
+
+.faq-question[aria-expanded="true"] {
+    background: var(--primary);
+    color: var(--white);
+}
+
+.faq-icon {
+    font-size: 1.5rem;
+    font-weight: 300;
+    transition: transform var(--transition-base);
+    flex-shrink: 0;
+    margin-left: var(--space-md);
+}
+
+.faq-question[aria-expanded="true"] .faq-icon {
+    transform: rotate(45deg);
+}
+
+.faq-answer {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height var(--transition-base) ease-out;
+}
+
+.faq-answer > * {
+    padding: 0 var(--space-lg);
+}
+
+.faq-answer > *:first-child {
+    padding-top: var(--space-lg);
+}
+
+.faq-answer > *:last-child {
+    padding-bottom: var(--space-lg);
+}
+
+.faq-answer p {
+    line-height: 1.7;
+    color: var(--gray-700);
+    margin-bottom: var(--space-md);
+}
+
+.faq-answer p:last-child {
+    margin-bottom: 0;
+}
+
+.faq-answer ul {
+    margin: var(--space-md) 0;
+    padding-left: var(--space-xl);
+    color: var(--gray-700);
+}
+
+.faq-answer ul li {
+    margin-bottom: var(--space-sm);
+    line-height: 1.6;
+}
+
+.faq-answer a {
+    color: var(--primary);
+    text-decoration: underline;
+}
+
+.faq-answer a:hover {
+    color: var(--gold);
+}
+
+/* ========================================
+   Legal Pages (Privacy, Terms, etc.)
+   ======================================== */
+.legal-content {
+    background: var(--white);
+    padding: var(--space-2xl);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+}
+
+.legal-updated {
+    color: var(--gray-600);
+    font-size: 0.9rem;
+    margin-bottom: var(--space-xl);
+    padding-bottom: var(--space-lg);
+    border-bottom: 1px solid var(--gray-200);
+}
+
+.legal-section {
+    margin-bottom: var(--space-2xl);
+    padding-bottom: var(--space-xl);
+    border-bottom: 1px solid var(--gray-200);
+}
+
+.legal-section:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+}
+
+.legal-section h2 {
+    font-size: 1.4rem;
+    color: var(--primary);
+    margin-bottom: var(--space-md);
+}
+
+.legal-section h3 {
+    font-size: 1.1rem;
+    color: var(--dark);
+    margin: var(--space-lg) 0 var(--space-sm);
+}
+
+.legal-section p {
+    margin-bottom: var(--space-md);
+    line-height: 1.7;
+    color: var(--gray-700);
+}
+
+.legal-section ul {
+    margin-bottom: var(--space-md);
+    padding-left: var(--space-xl);
+}
+
+.legal-section li {
+    margin-bottom: var(--space-sm);
+    line-height: 1.6;
+    color: var(--gray-700);
+}
+
+.legal-section a {
+    color: var(--primary);
+    text-decoration: underline;
+}
+
+.legal-section a:hover {
+    color: var(--gold);
+}
+
+.legal-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: var(--space-md) 0;
+}
+
+.legal-table th,
+.legal-table td {
+    padding: var(--space-md);
+    text-align: left;
+    border: 1px solid var(--gray-300);
+}
+
+.legal-table th {
+    background: var(--gray-100);
+    font-weight: 600;
+    color: var(--dark);
+}
+
+.legal-table td {
+    color: var(--gray-700);
+}
+
+.legal-contact {
+    background: var(--gray-100);
+    padding: var(--space-lg);
+    border-radius: var(--radius-md);
+    margin-top: var(--space-md);
+}
+
+.legal-contact p {
+    margin-bottom: var(--space-xs);
+}
+
+/* ========================================
    Responsive
    ======================================== */
 @media (max-width: 992px) {
@@ -852,5 +1063,36 @@ textarea.form-control {
 
     .social-links {
         justify-content: center;
+    }
+
+    .faq-question {
+        font-size: 1rem;
+        padding: var(--space-md);
+    }
+
+    .faq-answer > * {
+        padding: 0 var(--space-md);
+    }
+
+    .faq-answer > *:first-child {
+        padding-top: var(--space-md);
+    }
+
+    .faq-answer > *:last-child {
+        padding-bottom: var(--space-md);
+    }
+
+    .legal-content {
+        padding: var(--space-lg);
+    }
+
+    .legal-section h2 {
+        font-size: 1.25rem;
+    }
+
+    .legal-table th,
+    .legal-table td {
+        padding: var(--space-sm);
+        font-size: 0.9rem;
     }
 }

@@ -49,35 +49,91 @@ class EmailService
             return false;
         }
 
+        // Set socket timeout
+        stream_set_timeout($socket, 30);
+
+        // Helper function to read response (handles multi-line)
+        $readResponse = function() use ($socket) {
+            $response = '';
+            while ($line = fgets($socket, 512)) {
+                $response .= $line;
+                // Check if this is the last line (space after code, not dash)
+                if (isset($line[3]) && $line[3] === ' ') break;
+                // Also break if line starts with a code and has no continuation
+                if (preg_match('/^\d{3} /', $line)) break;
+            }
+            return $response;
+        };
+
         // Helper function to send command and get response
-        $sendCommand = function($command) use ($socket) {
+        $sendCommand = function($command) use ($socket, $readResponse) {
             fwrite($socket, $command . "\r\n");
-            return fgets($socket, 512);
+            return $readResponse();
         };
 
         // Get greeting
-        fgets($socket, 512);
-
-        // EHLO
-        $sendCommand("EHLO localhost");
-        // Read multi-line response
-        while ($line = fgets($socket, 512)) {
-            if (substr($line, 3, 1) === ' ') break;
+        $greeting = $readResponse();
+        if (strpos($greeting, '220') !== 0) {
+            error_log("SMTP greeting failed: $greeting");
+            fclose($socket);
+            return false;
         }
 
-        // AUTH LOGIN
-        $sendCommand("AUTH LOGIN");
-        $sendCommand(base64_encode($username));
-        $sendCommand(base64_encode($password));
+        // EHLO
+        $ehloResponse = $sendCommand("EHLO localhost");
+        if (strpos($ehloResponse, '250') === false) {
+            error_log("SMTP EHLO failed: $ehloResponse");
+            fclose($socket);
+            return false;
+        }
+
+        // AUTH LOGIN - send command and wait for 334 challenge
+        $authResponse = $sendCommand("AUTH LOGIN");
+        if (strpos($authResponse, '334') !== 0) {
+            error_log("SMTP AUTH LOGIN failed: $authResponse");
+            fclose($socket);
+            return false;
+        }
+
+        // Send username (base64) and wait for password challenge
+        $userResponse = $sendCommand(base64_encode($username));
+        if (strpos($userResponse, '334') !== 0) {
+            error_log("SMTP username failed: $userResponse");
+            fclose($socket);
+            return false;
+        }
+
+        // Send password (base64) and wait for auth success
+        $passResponse = $sendCommand(base64_encode($password));
+        if (strpos($passResponse, '235') !== 0) {
+            error_log("SMTP password failed: $passResponse");
+            fclose($socket);
+            return false;
+        }
 
         // MAIL FROM
-        $sendCommand("MAIL FROM:<{$this->fromEmail}>");
+        $fromResponse = $sendCommand("MAIL FROM:<{$this->fromEmail}>");
+        if (strpos($fromResponse, '250') !== 0) {
+            error_log("SMTP MAIL FROM failed: $fromResponse");
+            fclose($socket);
+            return false;
+        }
 
         // RCPT TO
-        $sendCommand("RCPT TO:<{$to}>");
+        $rcptResponse = $sendCommand("RCPT TO:<{$to}>");
+        if (strpos($rcptResponse, '250') !== 0) {
+            error_log("SMTP RCPT TO failed: $rcptResponse");
+            fclose($socket);
+            return false;
+        }
 
         // DATA
-        $sendCommand("DATA");
+        $dataResponse = $sendCommand("DATA");
+        if (strpos($dataResponse, '354') !== 0) {
+            error_log("SMTP DATA failed: $dataResponse");
+            fclose($socket);
+            return false;
+        }
 
         // Build headers
         $headers = "From: {$this->fromName} <{$this->fromEmail}>\r\n";
@@ -91,9 +147,9 @@ class EmailService
         $headers .= "Content-Type: text/html; charset=UTF-8\r\n";
         $headers .= "\r\n";
 
-        // Send message
+        // Send message body, ending with <CRLF>.<CRLF>
         fwrite($socket, $headers . $htmlContent . "\r\n.\r\n");
-        $response = fgets($socket, 512);
+        $response = $readResponse();
 
         // QUIT
         $sendCommand("QUIT");
@@ -384,9 +440,9 @@ HTML;
     </table>
 </div>
 <p>We'll review your design and prepare a detailed quote including pricing and estimated delivery time.</p>
-<p>In the meantime, if you have any questions, feel free to reply to this email or contact us through our website.</p>
+<p>In the meantime, if you have any questions, feel free to</p>
 <p style="text-align: center;">
-    <a href="SITE_URL/builder.php" class="btn btn-green">View Our Builder</a>
+    <a href="SITE_URL/contact.php" class="btn btn-green">Contact Us</a>
 </p>
 HTML;
 
@@ -398,75 +454,36 @@ HTML;
     /**
      * Send quote notification to admin
      */
-    public function sendQuoteNotificationToAdmin($customerName, $customerEmail, $customerPhone, $designData, $notes, $orderNumber = null)
+    public function sendQuoteNotificationToAdmin($customerName, $customerEmail, $customerPhone, $designData, $notes, $orderNumber = null, $toEmail = null)
     {
+        $toEmail = $toEmail ?? ADMIN_EMAIL;
         $style = $designData['tableStyle'] === 'racetrack' ? 'With Racetrack' : 'Standard Rail';
         $surface = $designData['surfaceMaterial'] === 'speedcloth' ? 'Suited Speed Cloth' : 'Velveteen';
         $cupHolders = $designData['cupHolders'] ? $designData['cupHolderCount'] . ' cup holders' : 'No cup holders';
         $railColor = $designData['railColor'] ?? '#1a1a1a';
         $surfaceColor = $designData['surfaceColor'] ?? '#1a472a';
-        $notesHtml = !empty($notes) ? "<tr><td>Notes</td><td>" . nl2br(htmlspecialchars($notes)) . "</td></tr>" : '';
-        $phoneHtml = !empty($customerPhone) ? "<tr><td>Phone</td><td>{$customerPhone}</td></tr>" : '';
-        $orderInfo = $orderNumber ? "<p><strong>Order Number:</strong> {$orderNumber}</p>" : '';
+        $notesText = !empty($notes) ? "Notes: " . $notes : '';
+        $orderInfo = $orderNumber ? "Quote Reference: {$orderNumber}" : '';
 
         $content = <<<HTML
 <h2 style="margin-top: 0;">New Quote Request!</h2>
 <p>A new quote request has been submitted.</p>
-{$orderInfo}
-<div class="highlight-box">
-    <h3 style="margin-top: 0; color: #1a472a;">Customer Information</h3>
-    <table class="info-table">
-        <tr>
-            <td>Name</td>
-            <td>{$customerName}</td>
-        </tr>
-        <tr>
-            <td>Email</td>
-            <td><a href="mailto:{$customerEmail}">{$customerEmail}</a></td>
-        </tr>
-        {$phoneHtml}
-    </table>
-</div>
-<div class="highlight-box">
-    <h3 style="margin-top: 0; color: #1a472a;">Table Design</h3>
-    <table class="info-table">
-        <tr>
-            <td>Table Style</td>
-            <td>{$style}</td>
-        </tr>
-        <tr>
-            <td>Size</td>
-            <td>96" x 48" (8ft x 4ft)</td>
-        </tr>
-        <tr>
-            <td>Rail Color</td>
-            <td><span class="color-swatch" style="background: {$railColor};"></span> {$railColor}</td>
-        </tr>
-        <tr>
-            <td>Playing Surface</td>
-            <td>{$surface}</td>
-        </tr>
-        <tr>
-            <td>Surface Color</td>
-            <td><span class="color-swatch" style="background: {$surfaceColor};"></span> {$surfaceColor}</td>
-        </tr>
-        <tr>
-            <td>Cup Holders</td>
-            <td>{$cupHolders}</td>
-        </tr>
-        {$notesHtml}
-    </table>
-</div>
-<p style="text-align: center;">
-    <a href="mailto:{$customerEmail}" class="btn">Reply to Customer</a>
-</p>
+<p>{$orderInfo}</p>
+<h3>Customer Information</h3>
+<p>Name: {$customerName}</p>
+<p>Email: {$customerEmail}</p>
+<h3>Table Design</h3>
+<p>Table Style: {$style}</p>
+<p>Size: 96 x 48 inches</p>
+<p>Rail Color: {$railColor}</p>
+<p>Playing Surface: {$surface}</p>
+<p>Surface Color: {$surfaceColor}</p>
+<p>Cup Holders: {$cupHolders}</p>
+<p>{$notesText}</p>
 HTML;
 
         $html = $this->wrapInLayout($content, 'New Quote Request');
-        return $this->send(ADMIN_EMAIL, 'New Quote Request from ' . $customerName, $html, [
-            'reply_to' => $customerEmail,
-            'reply_to_name' => $customerName
-        ]);
+        return $this->send($toEmail, 'New Quote Request from ' . $customerName, $html);
     }
 
     /**

@@ -43,43 +43,64 @@ if (!isEmailVerified()) {
     exit;
 }
 
-$db = new Database();
-$conn = $db->connect();
+try {
+    $db = new Database();
+    $conn = $db->connect();
 
-$designData = json_decode($input['design_data'] ?? '{}', true);
-$notes = trim($input['notes'] ?? '');
+    $order = new Order($conn);
 
-$emailService = new EmailService();
+    // Check if user already has a pending quote
+    if ($order->hasPendingQuote($_SESSION['user_id'])) {
+        http_response_code(429);
+        echo json_encode(['success' => false, 'error' => 'You already have a pending quote request. Please wait for a response before submitting another.']);
+        exit;
+    }
 
-$order = new Order($conn);
-$result = $order->create($_SESSION['user_id'], $designData, null, $notes);
+    $designData = json_decode($input['design_data'] ?? '{}', true);
+    $notes = trim($input['notes'] ?? '');
 
-if ($result['success']) {
-    // Send confirmation email to customer
-    $emailService->sendQuoteConfirmation(
-        $_SESSION['user_email'],
-        $_SESSION['user_name'],
-        $designData,
-        $result['order_number']
-    );
+    $emailService = new EmailService();
 
-    // Send notification to admin
-    $emailService->sendQuoteNotificationToAdmin(
-        $_SESSION['user_name'],
-        $_SESSION['user_email'],
-        '', // Phone not stored in session
-        $designData,
-        $notes,
-        $result['order_number']
-    );
+    $result = $order->create($_SESSION['user_id'], $designData, null, $notes);
 
-    echo json_encode([
-        'success' => true,
-        'order_number' => $result['order_number'],
-        'message' => 'Quote request submitted successfully'
-    ]);
-} else {
-    echo json_encode($result);
+    if ($result['success']) {
+        // Send confirmation email to customer (don't fail quote if email fails)
+        try {
+            $emailService->sendQuoteConfirmation(
+                $_SESSION['user_email'],
+                $_SESSION['user_name'],
+                $designData,
+                $result['order_number']
+            );
+        } catch (Exception $e) {
+            error_log("Quote confirmation email failed: " . $e->getMessage());
+        }
+
+        // Send notification to admin (don't fail quote if email fails)
+        try {
+            $emailService->sendQuoteNotificationToAdmin(
+                $_SESSION['user_name'],
+                $_SESSION['user_email'],
+                '', // Phone not stored in session
+                $designData,
+                $notes,
+                $result['order_number']
+            );
+        } catch (Exception $e) {
+            error_log("Quote admin notification email failed: " . $e->getMessage());
+        }
+
+        echo json_encode([
+            'success' => true,
+            'order_number' => $result['order_number'],
+            'message' => 'Quote request submitted successfully'
+        ]);
+    } else {
+        echo json_encode($result);
+    }
+} catch (Exception $e) {
+    error_log("Quote API error: " . $e->getMessage());
+    echo json_encode(['success' => false, 'error' => 'An error occurred: ' . $e->getMessage()]);
 }
 
 function formatDesignSummary($data) {

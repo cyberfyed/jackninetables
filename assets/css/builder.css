@@ -219,6 +219,21 @@
     color: var(--gray-600);
 }
 
+/* Three-column option cards for wood selection */
+.option-cards-thirds {
+    grid-template-columns: repeat(3, 1fr);
+}
+
+/* Wood swatch styling */
+.wood-swatch {
+    display: block;
+    width: 50px;
+    height: 30px;
+    border-radius: var(--radius-sm);
+    margin-bottom: var(--space-sm);
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.2);
+}
+
 /* Color Picker */
 .color-picker {
     display: flex;
@@ -495,6 +510,10 @@
 @media (max-width: 600px) {
     .option-cards {
         grid-template-columns: 1fr;
+    }
+
+    .option-cards-thirds {
+        grid-template-columns: repeat(3, 1fr);
     }
 }
 

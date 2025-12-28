@@ -40,34 +40,62 @@ require_once 'includes/header.php';
     <!-- Scrollable Right Side -->
     <div class="builder-right">
         <div class="builder-options">
-                <form id="tableBuilderForm">
-                    <input type="hidden" name="csrf_token" value="<?= getCSRFToken() ?>">
+            <form id="tableBuilderForm">
+                <input type="hidden" name="csrf_token" value="<?= getCSRFToken() ?>">
 
-                    <!-- Table Style -->
-                    <div class="option-group">
-                        <h3 class="option-title">Table Style</h3>
-                        <div class="option-cards">
-                            <label class="option-card">
-                                <input type="radio" name="table_style" value="racetrack" checked>
-                                <div class="option-card-content">
-                                    <div class="option-icon">&#127922;</div>
-                                    <span class="option-name">With Racetrack</span>
-                                    <span class="option-desc">Classic casino style with drink rail</span>
-                                </div>
-                            </label>
-                            <label class="option-card">
-                                <input type="radio" name="table_style" value="standard">
-                                <div class="option-card-content">
-                                    <div class="option-icon">&#127183;</div>
-                                    <span class="option-name">Standard Rail</span>
-                                    <span class="option-desc">Traditional padded rail design</span>
-                                </div>
-                            </label>
-                        </div>
+                <!-- Table Style -->
+                <div class="option-group">
+                    <h3 class="option-title">Table Style</h3>
+                    <div class="option-cards">
+                        <label class="option-card">
+                            <input type="radio" name="table_style" value="racetrack" checked>
+                            <div class="option-card-content">
+                                <div class="option-icon">&#127922;</div>
+                                <span class="option-name">With Racetrack</span>
+                                <span class="option-desc">Classic casino style with drink rail</span>
+                            </div>
+                        </label>
+                        <label class="option-card">
+                            <input type="radio" name="table_style" value="standard">
+                            <div class="option-card-content">
+                                <div class="option-icon">&#127183;</div>
+                                <span class="option-name">Standard Rail</span>
+                                <span class="option-desc">Traditional padded rail design</span>
+                            </div>
+                        </label>
                     </div>
+                </div>
 
-                    <!-- Table Size - Commented out for future multiple sizes -->
-                    <!--
+                <!-- Racetrack Wood Color (shown only when racetrack style selected) -->
+                <div class="option-group" id="racetrackColorGroup">
+                    <h3 class="option-title">Racetrack Wood</h3>
+                    <div class="option-cards option-cards-thirds">
+                        <label class="option-card">
+                            <input type="radio" name="racetrack_color" value="oak" checked>
+                            <div class="option-card-content">
+                                <span class="wood-swatch" style="background: linear-gradient(135deg, #9F6427 0%, #a67c52 100%);"></span>
+                                <span class="option-name">Oak</span>
+                            </div>
+                        </label>
+                        <label class="option-card">
+                            <input type="radio" name="racetrack_color" value="walnut">
+                            <div class="option-card-content">
+                                <span class="wood-swatch" style="background: linear-gradient(135deg, #5c3d2e 0%, #3d2314 100%);"></span>
+                                <span class="option-name">Walnut</span>
+                            </div>
+                        </label>
+                        <label class="option-card">
+                            <input type="radio" name="racetrack_color" value="cherry">
+                            <div class="option-card-content">
+                                <span class="wood-swatch" style="background: linear-gradient(135deg, #8b4533 0%, #6b2c23 100%);"></span>
+                                <span class="option-name">Cherry</span>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Table Size - Commented out for future multiple sizes -->
+                <!--
                     <div class="option-group">
                         <h3 class="option-title">Table Size</h3>
                         <div class="option-select">
@@ -79,150 +107,134 @@ require_once 'includes/header.php';
                         </div>
                     </div>
                     -->
-                    <!-- Default size: 96x48 (8ft x 4ft) -->
-                    <input type="hidden" name="table_size" id="tableSize" value="96x48">
+                <!-- Default size: 96x48 (8ft x 4ft) -->
+                <input type="hidden" name="table_size" id="tableSize" value="96x48">
 
-                    <!-- Rail Color -->
-                    <div class="option-group">
-                        <h3 class="option-title">Rail Color</h3>
-                        <div class="color-picker" id="railColors">
-                            <label class="color-swatch" title="Black">
-                                <input type="radio" name="rail_color" value="#1a1a1a" checked>
-                                <span class="swatch" style="background: #1a1a1a;"></span>
+                <!-- Rail Color -->
+                <div class="option-group">
+                    <h3 class="option-title">Rail Color</h3>
+                    <div class="color-picker" id="railColors">
+                        <label class="color-swatch" title="Black">
+                            <input type="radio" name="rail_color" value="#1a1a1a" checked>
+                            <span class="swatch" style="background: #1a1a1a;"></span>
+                        </label>
+                        <label class="color-swatch" title="Dark Brown">
+                            <input type="radio" name="rail_color" value="#3d2314">
+                            <span class="swatch" style="background: #3d2314;"></span>
+                        </label>
+                        <label class="color-swatch" title="Navy Blue">
+                            <input type="radio" name="rail_color" value="#1a2744">
+                            <span class="swatch" style="background: #1a2744;"></span>
+                        </label>
+                        <label class="color-swatch" title="White">
+                            <input type="radio" name="rail_color" value="#f5f5f5">
+                            <span class="swatch" style="background: #f5f5f5; border: 2px solid #ddd;"></span>
+                        </label>
+                        <label class="color-swatch" title="Tan">
+                            <input type="radio" name="rail_color" value="#c4a77d">
+                            <span class="swatch" style="background: #c4a77d;"></span>
+                        </label>
+                        <label class="color-swatch" title="Red">
+                            <input type="radio" name="rail_color" value="#8b0000">
+                            <span class="swatch" style="background: #8b0000;"></span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Playing Surface Material -->
+                <div class="option-group">
+                    <h3 class="option-title">Playing Surface</h3>
+                    <div class="option-cards">
+                        <label class="option-card">
+                            <input type="radio" name="surface_material" value="speedcloth" checked>
+                            <div class="option-card-content">
+                                <span class="option-name">Suited Speed Cloth</span>
+                                <span class="option-desc">Pro-grade, fast card sliding</span>
+                            </div>
+                        </label>
+                        <label class="option-card">
+                            <input type="radio" name="surface_material" value="velveteen">
+                            <div class="option-card-content">
+                                <span class="option-name">Velveteen</span>
+                                <span class="option-desc">Classic soft feel</span>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Surface Color -->
+                <div class="option-group">
+                    <h3 class="option-title">Surface Color</h3>
+                    <div class="color-picker" id="surfaceColors">
+                        <!-- Speed Cloth Colors -->
+                        <div class="color-set speedcloth-colors">
+                            <label class="color-swatch" title="Casino Green">
+                                <input type="radio" name="surface_color" value="#1a472a" checked>
+                                <span class="swatch" style="background: #1a472a;"></span>
                             </label>
-                            <label class="color-swatch" title="Dark Brown">
-                                <input type="radio" name="rail_color" value="#3d2314">
-                                <span class="swatch" style="background: #3d2314;"></span>
-                            </label>
-                            <label class="color-swatch" title="Burgundy">
-                                <input type="radio" name="rail_color" value="#722F37">
-                                <span class="swatch" style="background: #722F37;"></span>
-                            </label>
-                            <label class="color-swatch" title="Navy Blue">
-                                <input type="radio" name="rail_color" value="#1a2744">
-                                <span class="swatch" style="background: #1a2744;"></span>
-                            </label>
-                            <label class="color-swatch" title="Forest Green">
-                                <input type="radio" name="rail_color" value="#1a3d2e">
-                                <span class="swatch" style="background: #1a3d2e;"></span>
-                            </label>
-                            <label class="color-swatch" title="White">
-                                <input type="radio" name="rail_color" value="#f5f5f5">
-                                <span class="swatch" style="background: #f5f5f5; border: 2px solid #ddd;"></span>
-                            </label>
-                            <label class="color-swatch" title="Tan">
-                                <input type="radio" name="rail_color" value="#c4a77d">
-                                <span class="swatch" style="background: #c4a77d;"></span>
+                            <label class="color-swatch" title="Blue">
+                                <input type="radio" name="surface_color" value="#1a3a5c">
+                                <span class="swatch" style="background: #1a3a5c;"></span>
                             </label>
                             <label class="color-swatch" title="Red">
-                                <input type="radio" name="rail_color" value="#8b0000">
-                                <span class="swatch" style="background: #8b0000;"></span>
+                                <input type="radio" name="surface_color" value="#6b1c1c">
+                                <span class="swatch" style="background: #6b1c1c;"></span>
+                            </label>
+                            <label class="color-swatch" title="Black">
+                                <input type="radio" name="surface_color" value="#1a1a1a">
+                                <span class="swatch" style="background: #1a1a1a;"></span>
+                            </label>
+                            <label class="color-swatch" title="Purple">
+                                <input type="radio" name="surface_color" value="#3d1a4d">
+                                <span class="swatch" style="background: #3d1a4d;"></span>
+                            </label>
+                        </div>
+                        <!-- Velveteen Colors (hidden by default) -->
+                        <div class="color-set velveteen-colors" style="display: none;">
+                            <label class="color-swatch" title="Green">
+                                <input type="radio" name="surface_color_velvet" value="#2d5a3d">
+                                <span class="swatch" style="background: #2d5a3d;"></span>
+                            </label>
+                            <label class="color-swatch" title="Blue">
+                                <input type="radio" name="surface_color_velvet" value="#2a4a6d">
+                                <span class="swatch" style="background: #2a4a6d;"></span>
+                            </label>
+                            <label class="color-swatch" title="Red">
+                                <input type="radio" name="surface_color_velvet" value="#8b2c2c">
+                                <span class="swatch" style="background: #8b2c2c;"></span>
+                            </label>
+                            <label class="color-swatch" title="Black">
+                                <input type="radio" name="surface_color_velvet" value="#252525">
+                                <span class="swatch" style="background: #252525;"></span>
+                            </label>
+                            <label class="color-swatch" title="Purple">
+                                <input type="radio" name="surface_color_velvet" value="#3d1a4d">
+                                <span class="swatch" style="background: #3d1a4d;"></span>
                             </label>
                         </div>
                     </div>
+                </div>
 
-                    <!-- Playing Surface Material -->
-                    <div class="option-group">
-                        <h3 class="option-title">Playing Surface</h3>
-                        <div class="option-cards">
-                            <label class="option-card">
-                                <input type="radio" name="surface_material" value="speedcloth" checked>
-                                <div class="option-card-content">
-                                    <span class="option-name">Suited Speed Cloth</span>
-                                    <span class="option-desc">Pro-grade, fast card sliding</span>
-                                </div>
-                            </label>
-                            <label class="option-card">
-                                <input type="radio" name="surface_material" value="velveteen">
-                                <div class="option-card-content">
-                                    <span class="option-name">Velveteen</span>
-                                    <span class="option-desc">Classic soft feel</span>
-                                </div>
-                            </label>
-                        </div>
+                <!-- Cup Holders (only for racetrack style) -->
+                <div class="option-group" id="cupHoldersGroup">
+                    <h3 class="option-title">Cup Holders</h3>
+                    <div class="option-toggle">
+                        <label class="toggle-switch">
+                            <input type="checkbox" name="cup_holders" value="1" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <span>Include stainless steel cup holders</span>
                     </div>
-
-                    <!-- Surface Color -->
-                    <div class="option-group">
-                        <h3 class="option-title">Surface Color</h3>
-                        <div class="color-picker" id="surfaceColors">
-                            <!-- Speed Cloth Colors -->
-                            <div class="color-set speedcloth-colors">
-                                <label class="color-swatch" title="Casino Green">
-                                    <input type="radio" name="surface_color" value="#1a472a" checked>
-                                    <span class="swatch" style="background: #1a472a;"></span>
-                                </label>
-                                <label class="color-swatch" title="Blue">
-                                    <input type="radio" name="surface_color" value="#1a3a5c">
-                                    <span class="swatch" style="background: #1a3a5c;"></span>
-                                </label>
-                                <label class="color-swatch" title="Red">
-                                    <input type="radio" name="surface_color" value="#6b1c1c">
-                                    <span class="swatch" style="background: #6b1c1c;"></span>
-                                </label>
-                                <label class="color-swatch" title="Black">
-                                    <input type="radio" name="surface_color" value="#1a1a1a">
-                                    <span class="swatch" style="background: #1a1a1a;"></span>
-                                </label>
-                                <label class="color-swatch" title="Purple">
-                                    <input type="radio" name="surface_color" value="#3d1a4d">
-                                    <span class="swatch" style="background: #3d1a4d;"></span>
-                                </label>
-                                <label class="color-swatch" title="Burgundy">
-                                    <input type="radio" name="surface_color" value="#4a1c2e">
-                                    <span class="swatch" style="background: #4a1c2e;"></span>
-                                </label>
-                            </div>
-                            <!-- Velveteen Colors (hidden by default) -->
-                            <div class="color-set velveteen-colors" style="display: none;">
-                                <label class="color-swatch" title="Green">
-                                    <input type="radio" name="surface_color_velvet" value="#2d5a3d">
-                                    <span class="swatch" style="background: #2d5a3d;"></span>
-                                </label>
-                                <label class="color-swatch" title="Blue">
-                                    <input type="radio" name="surface_color_velvet" value="#2a4a6d">
-                                    <span class="swatch" style="background: #2a4a6d;"></span>
-                                </label>
-                                <label class="color-swatch" title="Red">
-                                    <input type="radio" name="surface_color_velvet" value="#8b2c2c">
-                                    <span class="swatch" style="background: #8b2c2c;"></span>
-                                </label>
-                                <label class="color-swatch" title="Black">
-                                    <input type="radio" name="surface_color_velvet" value="#252525">
-                                    <span class="swatch" style="background: #252525;"></span>
-                                </label>
-                                <label class="color-swatch" title="Navy">
-                                    <input type="radio" name="surface_color_velvet" value="#1a2744">
-                                    <span class="swatch" style="background: #1a2744;"></span>
-                                </label>
-                                <label class="color-swatch" title="Wine">
-                                    <input type="radio" name="surface_color_velvet" value="#5c1a35">
-                                    <span class="swatch" style="background: #5c1a35;"></span>
-                                </label>
-                            </div>
-                        </div>
+                    <div class="cup-holder-count" id="cupHolderCount">
+                        <label>Number of cup holders:</label>
+                        <select name="cup_holder_count" class="form-control" style="width: auto; display: inline-block;">
+                            <option value="8">8</option>
+                            <option value="10" selected>10</option>
+                        </select>
                     </div>
+                </div>
 
-                    <!-- Cup Holders -->
-                    <div class="option-group">
-                        <h3 class="option-title">Cup Holders</h3>
-                        <div class="option-toggle">
-                            <label class="toggle-switch">
-                                <input type="checkbox" name="cup_holders" value="1" checked>
-                                <span class="toggle-slider"></span>
-                            </label>
-                            <span>Include stainless steel cup holders</span>
-                        </div>
-                        <div class="cup-holder-count" id="cupHolderCount">
-                            <label>Number of cup holders:</label>
-                            <select name="cup_holder_count" class="form-control" style="width: auto; display: inline-block;">
-                                <option value="8">8</option>
-                                <option value="10" selected>10</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <!-- Dealer Position - Removed (targeting players, not casinos)
+                <!-- Dealer Position - Removed (targeting players, not casinos)
                     <div class="option-group">
                         <h3 class="option-title">Dealer Cutout</h3>
                         <div class="option-toggle">
@@ -235,20 +247,20 @@ require_once 'includes/header.php';
                     </div>
                     -->
 
-                    <!-- Saved Design Banner (hidden by default) -->
-                    <div class="saved-design-banner" id="savedDesignBanner" style="display: none;">
-                        <div class="saved-tag">
-                            <span class="saved-icon">&#10003;</span>
-                            <span>Design Saved</span>
-                        </div>
-                        <p class="saved-name" id="savedDesignName"></p>
-                        <button type="button" class="btn btn-primary btn-block" id="quoteFromSaved">
-                            Request Quote for This Design
-                        </button>
+                <!-- Saved Design Banner (hidden by default) -->
+                <div class="saved-design-banner" id="savedDesignBanner" style="display: none;">
+                    <div class="saved-tag">
+                        <span class="saved-icon">&#10003;</span>
+                        <span>Design Saved</span>
                     </div>
+                    <p class="saved-name" id="savedDesignName"></p>
+                    <button type="button" class="btn btn-primary btn-block" id="quoteFromSaved">
+                        Request Quote for This Design
+                    </button>
+                </div>
 
-                    <!-- Verification Warning (shown if logged in but not verified) -->
-                    <?php if (isLoggedIn() && !isEmailVerified()): ?>
+                <!-- Verification Warning (shown if logged in but not verified) -->
+                <?php if (isLoggedIn() && !isEmailVerified()): ?>
                     <div class="verification-warning" id="verificationWarning">
                         <div class="warning-icon">&#9888;</div>
                         <div class="warning-text">
@@ -257,43 +269,43 @@ require_once 'includes/header.php';
                         </div>
                         <a href="<?= SITE_URL ?>/resend-verification.php" class="btn btn-sm btn-outline">Resend Verification Email</a>
                     </div>
-                    <?php endif; ?>
+                <?php endif; ?>
 
-                    <!-- Actions -->
-                    <div class="builder-actions" id="builderActions">
-                        <?php if (isLoggedIn()): ?>
-                            <?php if (isEmailVerified()): ?>
-                                <button type="button" class="btn btn-secondary btn-block" id="saveDesign">
-                                    Save Design
-                                </button>
-                            <?php else: ?>
-                                <button type="button" class="btn btn-secondary btn-block btn-disabled" id="saveDesignDisabled" disabled>
-                                    Save Design
-                                </button>
-                            <?php endif; ?>
-                        <?php else: ?>
-                            <a href="<?= SITE_URL ?>/login.php" class="btn btn-secondary btn-block">
-                                Login to Save Design
-                            </a>
-                        <?php endif; ?>
-                        <?php if (!isLoggedIn()): ?>
-                            <a href="<?= SITE_URL ?>/register.php" class="btn btn-primary btn-block btn-lg">
-                                Create Account to Get Quote
-                            </a>
-                        <?php elseif (isEmailVerified()): ?>
-                            <button type="button" class="btn btn-primary btn-block btn-lg" id="requestQuote">
-                                Request Quote
+                <!-- Actions -->
+                <div class="builder-actions" id="builderActions">
+                    <?php if (isLoggedIn()): ?>
+                        <?php if (isEmailVerified()): ?>
+                            <button type="button" class="btn btn-secondary btn-block" id="saveDesign">
+                                Save Design
                             </button>
                         <?php else: ?>
-                            <button type="button" class="btn btn-primary btn-block btn-lg btn-disabled" id="requestQuoteDisabled" disabled>
-                                Request Quote
+                            <button type="button" class="btn btn-secondary btn-block btn-disabled" id="saveDesignDisabled" disabled>
+                                Save Design
                             </button>
                         <?php endif; ?>
-                    </div>
-                </form>
-            </div>
+                    <?php else: ?>
+                        <a href="<?= SITE_URL ?>/login.php" class="btn btn-secondary btn-block">
+                            Login to Save Design
+                        </a>
+                    <?php endif; ?>
+                    <?php if (!isLoggedIn()): ?>
+                        <a href="<?= SITE_URL ?>/register.php" class="btn btn-primary btn-block btn-lg">
+                            Create Account to Get Quote
+                        </a>
+                    <?php elseif (isEmailVerified()): ?>
+                        <button type="button" class="btn btn-primary btn-block btn-lg" id="requestQuote">
+                            Request Quote
+                        </button>
+                    <?php else: ?>
+                        <button type="button" class="btn btn-primary btn-block btn-lg btn-disabled" id="requestQuoteDisabled" disabled>
+                            Request Quote
+                        </button>
+                    <?php endif; ?>
+                </div>
+            </form>
         </div>
     </div>
+</div>
 </div>
 
 <!-- Save Design Modal -->

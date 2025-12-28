@@ -37,7 +37,7 @@ require_once 'includes/header.php';
             <div class="card">
                 <div class="card-body">
                     <h3 style="color: var(--primary);">Quality Materials</h3>
-                    <p>We source premium hardwoods, professional-grade speed cloth, and high-quality vinyl. Every material is chosen for durability and appearance.</p>
+                    <p>We source premium materials, professional-grade speed cloth, and high-quality vinyl. Every material is chosen for durability and appearance.</p>
                 </div>
             </div>
 

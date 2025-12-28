@@ -14,10 +14,11 @@ class Order {
                   VALUES (:user_id, :design_id, :order_number, :design_data, :notes)";
 
         $stmt = $this->conn->prepare($query);
+        $designDataJson = json_encode($designData);
         $stmt->bindParam(':user_id', $userId);
         $stmt->bindParam(':design_id', $designId);
         $stmt->bindParam(':order_number', $orderNumber);
-        $stmt->bindParam(':design_data', json_encode($designData));
+        $stmt->bindParam(':design_data', $designDataJson);
         $stmt->bindParam(':notes', $notes);
 
         if ($stmt->execute()) {
@@ -116,6 +117,14 @@ class Order {
         $stmt->bindParam(':user_id', $userId);
         $stmt->execute();
         return $stmt->fetch()['count'];
+    }
+
+    public function hasPendingQuote($userId) {
+        $query = "SELECT COUNT(*) as count FROM {$this->table} WHERE user_id = :user_id AND status = 'pending'";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(':user_id', $userId);
+        $stmt->execute();
+        return $stmt->fetch()['count'] > 0;
     }
 
     public function getStatusCounts($userId) {

@@ -12,11 +12,19 @@ class PokerTableBuilder {
             tableStyle: 'racetrack',
             tableSize: '96x48',
             railColor: '#1a1a1a',
+            racetrackColor: 'oak',
             surfaceMaterial: 'speedcloth',
             surfaceColor: '#1a472a',
             cupHolders: true,
             cupHolderCount: 10,
             dealerCutout: false
+        };
+
+        // Wood color mappings
+        this.woodColors = {
+            oak: { main: '#9F6427', dark: '#a67c52' },
+            walnut: { main: '#5c3d2e', dark: '#3d2314' },
+            cherry: { main: '#8b4533', dark: '#6b2c23' }
         };
 
         this.init();
@@ -30,6 +38,9 @@ class PokerTableBuilder {
             this.loadDesign(loadedDesign);
         }
 
+        // Show/hide racetrack-specific options
+        this.toggleRacetrackOptions();
+
         this.renderTable();
     }
 
@@ -41,6 +52,15 @@ class PokerTableBuilder {
         // Table style
         const styleInput = document.querySelector(`input[name="table_style"][value="${design.tableStyle}"]`);
         if (styleInput) styleInput.checked = true;
+
+        // Toggle racetrack color visibility
+        this.toggleRacetrackOptions();
+
+        // Racetrack color
+        if (design.racetrackColor) {
+            const racetrackInput = document.querySelector(`input[name="racetrack_color"][value="${design.racetrackColor}"]`);
+            if (racetrackInput) racetrackInput.checked = true;
+        }
 
         // Table size
         document.getElementById('tableSize').value = design.tableSize;
@@ -90,6 +110,15 @@ class PokerTableBuilder {
         document.querySelectorAll('input[name="table_style"]').forEach(input => {
             input.addEventListener('change', (e) => {
                 this.config.tableStyle = e.target.value;
+                this.toggleRacetrackOptions();
+                this.renderTable();
+            });
+        });
+
+        // Racetrack color
+        document.querySelectorAll('input[name="racetrack_color"]').forEach(input => {
+            input.addEventListener('change', (e) => {
+                this.config.racetrackColor = e.target.value;
                 this.renderTable();
             });
         });
@@ -234,6 +263,18 @@ class PokerTableBuilder {
         modal.classList.add('active');
     }
 
+    toggleRacetrackOptions() {
+        const racetrackGroup = document.getElementById('racetrackColorGroup');
+        const cupHoldersGroup = document.getElementById('cupHoldersGroup');
+
+        if (racetrackGroup) {
+            racetrackGroup.style.display = this.config.tableStyle === 'racetrack' ? 'block' : 'none';
+        }
+        if (cupHoldersGroup) {
+            cupHoldersGroup.style.display = this.config.tableStyle === 'racetrack' ? 'block' : 'none';
+        }
+    }
+
     toggleColorSets() {
         const speedclothColors = document.querySelector('.speedcloth-colors');
         const velveeteenColors = document.querySelector('.velveteen-colors');
@@ -300,7 +341,8 @@ class PokerTableBuilder {
         const outerRx = 350;  // Outer radius X (horizontal)
         const outerRy = 180;  // Outer radius Y (vertical) - also the end cap radius
         const railWidth = hasRacetrack ? 45 : 35;
-        const racetrackWidth = hasRacetrack ? 22 : 0;
+        const racetrackOutward = hasRacetrack ? 22 : 0;  // extends into rail area
+        const racetrackInward = hasRacetrack ? 33 : 0;   // extends into playing surface (1.5x original)
 
         let svg = '';
 
@@ -336,24 +378,25 @@ class PokerTableBuilder {
 
         if (hasRacetrack) {
             // Racetrack (wood inlay between rail and felt)
-            const racetrackRx = outerRx - railWidth + racetrackWidth;
-            const racetrackRy = outerRy - railWidth + racetrackWidth;
+            const racetrackRx = outerRx - railWidth + racetrackOutward;
+            const racetrackRy = outerRy - railWidth + racetrackOutward;
+            const woodColor = this.woodColors[this.config.racetrackColor] || this.woodColors.oak;
 
             svg += `
                 <path d="${this.getStadiumPath(cx, cy, racetrackRx, racetrackRy)}"
-                      fill="#5c3d2e" stroke="#3d2314" stroke-width="2"/>
+                      fill="${woodColor.main}" stroke="${woodColor.dark}" stroke-width="2"/>
             `;
 
             // Wood grain texture effect
             svg += `
                 <path d="${this.getStadiumPath(cx, cy, racetrackRx, racetrackRy)}"
-                      fill="none" stroke="#3d2314" stroke-width="0.5" stroke-dasharray="4,4" opacity="0.3"/>
+                      fill="none" stroke="${woodColor.dark}" stroke-width="0.5" stroke-dasharray="4,4" opacity="0.3"/>
             `;
         }
 
-        // Playing surface
-        const surfaceRx = outerRx - railWidth;
-        const surfaceRy = outerRy - railWidth;
+        // Playing surface (inset by racetrack when racetrack style selected)
+        const surfaceRx = outerRx - railWidth + racetrackOutward - racetrackInward;
+        const surfaceRy = outerRy - railWidth + racetrackOutward - racetrackInward;
 
         // Base felt color
         svg += `
@@ -383,17 +426,19 @@ class PokerTableBuilder {
             `;
         }
 
-        // Cup holders
-        if (this.config.cupHolders) {
-            svg += this.renderCupHolders(cx, cy, outerRx, outerRy, railWidth/2);
+        // Cup holders (only available with racetrack style)
+        if (this.config.cupHolders && hasRacetrack) {
+            const cupHolderOffset = railWidth - racetrackOutward + racetrackInward/2;  // center of racetrack
+            svg += this.renderCupHolders(cx, cy, outerRx, outerRy, cupHolderOffset, true);
         }
 
         this.svg.innerHTML = svg;
     }
 
-    renderCupHolders(cx, cy, rx, ry, offset) {
+    renderCupHolders(cx, cy, rx, ry, offset, inRacetrack = false) {
         const count = this.config.cupHolderCount;
         let svg = '';
+        const holderRadius = inRacetrack ? 12 : 15;  // smaller when in racetrack
 
         // Cup holders follow the stadium shape, inset by offset
         const holderRy = ry - offset;
@@ -455,11 +500,11 @@ class PokerTableBuilder {
         positions.forEach(pos => {
             // Cup holder circle
             svg += `
-                <circle cx="${pos.x}" cy="${pos.y}" r="15"
+                <circle cx="${pos.x}" cy="${pos.y}" r="${holderRadius}"
                         fill="#2a2a2a" stroke="#1a1a1a" stroke-width="2"/>
-                <circle cx="${pos.x}" cy="${pos.y}" r="12"
+                <circle cx="${pos.x}" cy="${pos.y}" r="${holderRadius - 3}"
                         fill="#1a1a1a"/>
-                <circle cx="${pos.x}" cy="${pos.y}" r="10"
+                <circle cx="${pos.x}" cy="${pos.y}" r="${holderRadius - 5}"
                         fill="none" stroke="#3a3a3a" stroke-width="1"/>
             `;
         });
@@ -490,6 +535,7 @@ class PokerTableBuilder {
             tableStyle: this.config.tableStyle,
             tableSize: this.config.tableSize,
             railColor: this.config.railColor,
+            racetrackColor: this.config.racetrackColor,
             surfaceMaterial: this.config.surfaceMaterial,
             surfaceColor: this.config.surfaceColor,
             cupHolders: this.config.cupHolders,
@@ -506,16 +552,26 @@ class PokerTableBuilder {
             '108x48': '108" x 48" (10+ Players)'
         };
 
+        const woodLabels = {
+            oak: 'Oak',
+            walnut: 'Walnut',
+            cherry: 'Cherry'
+        };
+
+        const racetrackLine = this.config.tableStyle === 'racetrack'
+            ? `<li><span class="label">Racetrack Wood:</span> <span class="value">${woodLabels[this.config.racetrackColor] || 'Oak'}</span></li>`
+            : '';
+
         return `
             <h4>Your Table Configuration:</h4>
             <ul>
                 <li><span class="label">Style:</span> <span class="value">${this.config.tableStyle === 'racetrack' ? 'With Racetrack' : 'Standard Rail'}</span></li>
+                ${racetrackLine}
                 <li><span class="label">Size:</span> <span class="value">${sizeLabels[this.config.tableSize]}</span></li>
                 <li><span class="label">Rail Color:</span> <span class="value"><span style="display:inline-block;width:16px;height:16px;background:${this.config.railColor};border-radius:3px;vertical-align:middle;margin-right:5px;border:1px solid #ccc;"></span></span></li>
                 <li><span class="label">Surface:</span> <span class="value">${this.config.surfaceMaterial === 'speedcloth' ? 'Suited Speed Cloth' : 'Velveteen'}</span></li>
                 <li><span class="label">Surface Color:</span> <span class="value"><span style="display:inline-block;width:16px;height:16px;background:${this.config.surfaceColor};border-radius:3px;vertical-align:middle;margin-right:5px;border:1px solid #ccc;"></span></span></li>
                 <li><span class="label">Cup Holders:</span> <span class="value">${this.config.cupHolders ? this.config.cupHolderCount : 'None'}</span></li>
-                <li><span class="label">Dealer Cutout:</span> <span class="value">${this.config.dealerCutout ? 'Yes' : 'No'}</span></li>
             </ul>
         `;
     }
@@ -593,7 +649,17 @@ class PokerTableBuilder {
                 body: JSON.stringify(data)
             });
 
-            const result = await response.json();
+            const responseText = await response.text();
+            console.log('Raw response:', responseText);
+
+            let result;
+            try {
+                result = JSON.parse(responseText);
+            } catch (parseError) {
+                console.error('JSON parse error. Raw response:', responseText);
+                this.showNotification('Server error. Check console for details.', 'Error', 'error');
+                return;
+            }
 
             if (result.success) {
                 this.closeModals();

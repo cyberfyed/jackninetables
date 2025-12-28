@@ -43,6 +43,8 @@ function isEmailVerified() {
 
 function requireLogin() {
     if (!isLoggedIn()) {
+        // Save the page they were trying to access
+        $_SESSION['redirect_after_login'] = $_SERVER['REQUEST_URI'];
         $_SESSION['flash_error'] = 'Please log in to access this page.';
         redirect('login.php');
     }

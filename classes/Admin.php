@@ -25,8 +25,20 @@ class Admin
         $stmt = $this->conn->query("SELECT COUNT(*) FROM orders");
         $stats['total_quotes'] = $stmt->fetchColumn();
 
-        // Pending quotes (status = 'quote')
-        $stats['pending_quotes'] = $stats['quotes_by_status']['quote'] ?? 0;
+        // New quotes needing price (quote_started)
+        $stats['needs_quote'] = $stats['quotes_by_status']['quote_started'] ?? 0;
+
+        // Awaiting deposit (price_sent)
+        $stats['awaiting_deposit'] = $stats['quotes_by_status']['price_sent'] ?? 0;
+
+        // In production (deposit_paid)
+        $stats['in_production'] = $stats['quotes_by_status']['deposit_paid'] ?? 0;
+
+        // Awaiting final payment (invoice_sent)
+        $stats['awaiting_final'] = $stats['quotes_by_status']['invoice_sent'] ?? 0;
+
+        // Completed orders (paid_in_full)
+        $stats['completed_orders'] = $stats['quotes_by_status']['paid_in_full'] ?? 0;
 
         // Unread messages
         $stmt = $this->conn->query("SELECT COUNT(*) FROM contact_messages WHERE is_read = 0");
@@ -40,10 +52,32 @@ class Admin
         $stmt = $this->conn->query("SELECT COUNT(*) FROM users");
         $stats['total_users'] = $stmt->fetchColumn();
 
-        // Completed orders
-        $stats['completed_orders'] = $stats['quotes_by_status']['completed'] ?? 0;
-
         return $stats;
+    }
+
+    /**
+     * Get orders that need action
+     */
+    public function getOrdersNeedingAction($status, $limit = 5)
+    {
+        $query = "SELECT o.*, u.first_name, u.last_name, u.email
+                  FROM orders o
+                  JOIN users u ON o.user_id = u.id
+                  WHERE o.status = :status
+                  ORDER BY o.created_at ASC
+                  LIMIT :limit";
+
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindValue(':status', $status);
+        $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+        $stmt->execute();
+
+        $orders = $stmt->fetchAll();
+        foreach ($orders as &$order) {
+            $order['design_data'] = json_decode($order['design_data'], true);
+        }
+
+        return $orders;
     }
 
     // ========== ORDERS/QUOTES ==========

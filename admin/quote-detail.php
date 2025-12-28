@@ -59,7 +59,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         $order['first_name'],
                         $order['order_number'],
                         $price,
-                        $depositAmount
+                        $depositAmount,
+                        $id
                     );
 
                     if ($sent) {
@@ -81,7 +82,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $order['first_name'],
                     $order['order_number'],
                     $remaining,
-                    $order['final_price']
+                    $order['final_price'],
+                    $id
                 );
 
                 if ($sent) {

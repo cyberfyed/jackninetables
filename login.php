@@ -34,6 +34,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             if ($result['success']) {
                 setFlash('success', 'Welcome back, ' . $_SESSION['user_name'] . '!');
+
+                // Check if there's a saved redirect destination
+                if (!empty($_SESSION['redirect_after_login'])) {
+                    $redirectTo = $_SESSION['redirect_after_login'];
+                    unset($_SESSION['redirect_after_login']);
+                    header('Location: ' . $redirectTo);
+                    exit;
+                }
+
                 if (isAdmin()) {
                     redirect('admin/');
                 }

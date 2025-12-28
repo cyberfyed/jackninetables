@@ -713,12 +713,13 @@ HTML;
     /**
      * Send quote price email to customer
      */
-    public function sendQuotePriceEmail($to, $firstName, $orderNumber, $price, $depositAmount)
+    public function sendQuotePriceEmail($to, $firstName, $orderNumber, $price, $depositAmount, $orderId = null)
     {
         $formattedPrice = number_format($price, 2);
         $formattedDeposit = number_format($depositAmount, 2);
         $depositPercent = DEPOSIT_PERCENTAGE;
         $siteUrl = SITE_URL;
+        $payLink = $orderId ? "{$siteUrl}/pay-deposit.php?id={$orderId}" : "{$siteUrl}/my-orders.php";
 
         $content = <<<HTML
 <h2 style="margin-top: 0;">Your Quote is Ready!</h2>
@@ -745,7 +746,7 @@ HTML;
     <strong>Ready to proceed?</strong> Pay your {$depositPercent}% deposit to secure your spot in our production queue. The deposit is non-refundable as we begin sourcing materials specifically for your table.
 </div>
 <p style="text-align: center;">
-    <a href="{$siteUrl}/my-orders.php" class="btn">View Quote & Pay Deposit</a>
+    <a href="{$payLink}" class="btn">Pay Deposit Now</a>
 </p>
 <p>This quote is valid for 30 days. If you have any questions about your quote or the build process, don't hesitate to reach out!</p>
 <p>Thank you for choosing Jack Nine Tables!</p>
@@ -758,12 +759,13 @@ HTML;
     /**
      * Send final invoice email to customer
      */
-    public function sendFinalInvoiceEmail($to, $firstName, $orderNumber, $remainingBalance, $totalPrice)
+    public function sendFinalInvoiceEmail($to, $firstName, $orderNumber, $remainingBalance, $totalPrice, $orderId = null)
     {
         $formattedRemaining = number_format($remainingBalance, 2);
         $formattedTotal = number_format($totalPrice, 2);
         $depositPaid = number_format($totalPrice - $remainingBalance, 2);
         $siteUrl = SITE_URL;
+        $payLink = $orderId ? "{$siteUrl}/pay-final.php?id={$orderId}" : "{$siteUrl}/my-orders.php";
 
         $content = <<<HTML
 <h2 style="margin-top: 0;">Your Table is Complete!</h2>
@@ -794,7 +796,7 @@ HTML;
     <strong>Payment Required:</strong> Please complete your payment within 7 days to arrange delivery. We'll coordinate shipping details once payment is received.
 </div>
 <p style="text-align: center;">
-    <a href="{$siteUrl}/my-orders.php" class="btn">View Invoice & Pay</a>
+    <a href="{$payLink}" class="btn">Pay Now</a>
 </p>
 <p>We can't wait for you to enjoy your new custom poker table! If you have any questions about delivery or setup, please let us know.</p>
 <p>Thank you for choosing Jack Nine Tables!</p>

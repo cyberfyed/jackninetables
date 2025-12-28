@@ -6,6 +6,12 @@ define('SITE_NAME', 'Jack Nine Tables');
 define('SITE_URL', 'http://localhost/jackninetablesnew');
 define('SITE_EMAIL', 'info@jackninetables.com');
 
+// PayPal configuration
+define('PAYPAL_CLIENT_ID', 'AeRSvMBrV50JMm36B7ec2d-O8Bq2WiSX8fyRRss_1FljA33fpp-7Dy4yfUatMs8uWdIcNxEvxd67WaDf');
+define('PAYPAL_SECRET', 'ELjyFhVba1FH23Q6VhtwSK_HE1-ZpOFbmUD7x2wv2SicBOu-rL9LIGvXkL-uk3CpTJ69tbr6IKQjxX9V');
+define('PAYPAL_MODE', 'sandbox'); // Change to 'live' for production
+define('DEPOSIT_PERCENTAGE', 25); // 25% deposit required
+
 // Include database
 require_once __DIR__ . '/database.php';
 

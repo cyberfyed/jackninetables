@@ -609,4 +609,104 @@ HTML;
         $html = $this->wrapInLayout($content, 'Verify Your Email');
         return $this->send($to, 'Verify your email - Jack Nine Tables', $html);
     }
+
+    /**
+     * Send deposit payment confirmation to customer
+     */
+    public function sendDepositConfirmation($to, $firstName, $orderNumber, $depositAmount, $totalPrice)
+    {
+        $formattedDeposit = number_format($depositAmount, 2);
+        $formattedTotal = number_format($totalPrice, 2);
+        $remaining = number_format($totalPrice - $depositAmount, 2);
+        $siteUrl = SITE_URL;
+
+        $content = <<<HTML
+<h2 style="margin-top: 0;">Deposit Payment Confirmed!</h2>
+<p>Hi {$firstName},</p>
+<p>Thank you for your deposit payment! Your custom poker table is now in the queue for production.</p>
+<div class="highlight-box">
+    <h3 style="margin-top: 0; color: #1a472a;">Payment Summary</h3>
+    <table class="info-table">
+        <tr>
+            <td>Order Number</td>
+            <td>{$orderNumber}</td>
+        </tr>
+        <tr>
+            <td>Deposit Paid</td>
+            <td style="color: #1a472a; font-size: 1.2em;">\${$formattedDeposit}</td>
+        </tr>
+        <tr>
+            <td>Total Order</td>
+            <td>\${$formattedTotal}</td>
+        </tr>
+        <tr>
+            <td>Remaining Balance</td>
+            <td>\${$remaining}</td>
+        </tr>
+    </table>
+</div>
+<div class="alert alert-info">
+    <strong>What's Next?</strong>
+    <ul style="margin: 10px 0 0 0; padding-left: 20px;">
+        <li>We'll begin sourcing materials for your table</li>
+        <li>Production typically takes 4-6 weeks</li>
+        <li>We'll keep you updated on progress</li>
+        <li>Remaining balance is due before shipping</li>
+    </ul>
+</div>
+<p style="text-align: center;">
+    <a href="{$siteUrl}/my-orders.php" class="btn btn-green">View Your Orders</a>
+</p>
+<p>Thank you for choosing Jack Nine Tables!</p>
+HTML;
+
+        $html = $this->wrapInLayout($content, 'Deposit Payment Confirmed');
+        return $this->send($to, 'Deposit Confirmed - Order ' . $orderNumber, $html);
+    }
+
+    /**
+     * Send deposit notification to admin
+     */
+    public function sendDepositNotificationToAdmin($customerName, $customerEmail, $orderNumber, $depositAmount, $totalPrice)
+    {
+        $formattedDeposit = number_format($depositAmount, 2);
+        $formattedTotal = number_format($totalPrice, 2);
+        $siteUrl = SITE_URL;
+
+        $content = <<<HTML
+<h2 style="margin-top: 0;">New Deposit Payment Received!</h2>
+<p>A customer has paid their deposit and is ready for production.</p>
+<div class="highlight-box">
+    <h3 style="margin-top: 0; color: #1a472a;">Payment Details</h3>
+    <table class="info-table">
+        <tr>
+            <td>Order Number</td>
+            <td><strong>{$orderNumber}</strong></td>
+        </tr>
+        <tr>
+            <td>Customer</td>
+            <td>{$customerName}</td>
+        </tr>
+        <tr>
+            <td>Email</td>
+            <td><a href="mailto:{$customerEmail}">{$customerEmail}</a></td>
+        </tr>
+        <tr>
+            <td>Deposit Paid</td>
+            <td style="color: #1a472a; font-size: 1.2em;">\${$formattedDeposit}</td>
+        </tr>
+        <tr>
+            <td>Total Order</td>
+            <td>\${$formattedTotal}</td>
+        </tr>
+    </table>
+</div>
+<p style="text-align: center;">
+    <a href="{$siteUrl}/admin/quotes.php" class="btn">View in Admin</a>
+</p>
+HTML;
+
+        $html = $this->wrapInLayout($content, 'New Deposit Payment');
+        return $this->send(ADMIN_EMAIL, 'Deposit Received - Order ' . $orderNumber . ' - $' . $formattedDeposit, $html);
+    }
 }

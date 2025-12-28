@@ -1,13 +1,14 @@
 <?php
 require_once 'config/config.php';
 require_once 'classes/Order.php';
+require_once 'classes/PayPal.php';
 
 requireLogin();
 
 $db = new Database();
-$order = new Order($db->connect());
+$orderModel = new Order($db->connect());
 
-$orders = $order->getByUser($_SESSION['user_id']);
+$orders = $orderModel->getByUser($_SESSION['user_id']);
 
 $pageTitle = 'My Orders';
 require_once 'includes/header.php';
@@ -42,10 +43,17 @@ require_once 'includes/header.php';
                                 <th style="padding: 1rem; text-align: left; border-bottom: 2px solid var(--gray-200);">Configuration</th>
                                 <th style="padding: 1rem; text-align: left; border-bottom: 2px solid var(--gray-200);">Status</th>
                                 <th style="padding: 1rem; text-align: right; border-bottom: 2px solid var(--gray-200);">Price</th>
+                                <th style="padding: 1rem; text-align: center; border-bottom: 2px solid var(--gray-200);">Action</th>
                             </tr>
                         </thead>
                         <tbody>
                             <?php foreach ($orders as $o): ?>
+                                <?php
+                                $needsDeposit = $orderModel->needsDeposit($o);
+                                $orderPrice = $orderModel->getOrderPrice($o);
+                                $depositAmount = PayPal::calculateDeposit($orderPrice);
+                                $depositPaid = !empty($o['deposit_paid_at']);
+                                ?>
                                 <tr>
                                     <td style="padding: 1rem; border-bottom: 1px solid var(--gray-200);">
                                         <strong><?= sanitize($o['order_number']) ?></strong>
@@ -66,6 +74,11 @@ require_once 'includes/header.php';
                                         <span class="status-badge status-<?= $o['status'] ?>">
                                             <?= ucfirst(str_replace('_', ' ', $o['status'])) ?>
                                         </span>
+                                        <?php if ($depositPaid): ?>
+                                            <div style="font-size: 0.75rem; color: var(--success); margin-top: 0.25rem;">
+                                                Deposit paid: $<?= number_format($o['deposit_amount'], 2) ?>
+                                            </div>
+                                        <?php endif; ?>
                                     </td>
                                     <td style="padding: 1rem; border-bottom: 1px solid var(--gray-200); text-align: right;">
                                         <?php if ($o['final_price']): ?>
@@ -74,6 +87,24 @@ require_once 'includes/header.php';
                                             <span style="color: var(--gray-600);">~$<?= number_format($o['estimated_price'], 2) ?></span>
                                         <?php else: ?>
                                             <span style="color: var(--gray-500);">Pending</span>
+                                        <?php endif; ?>
+                                    </td>
+                                    <td style="padding: 1rem; border-bottom: 1px solid var(--gray-200); text-align: center;">
+                                        <?php if ($needsDeposit): ?>
+                                            <a href="<?= SITE_URL ?>/pay-deposit.php?id=<?= $o['id'] ?>" class="btn btn-primary btn-sm">
+                                                Pay Deposit<br>
+                                                <small>$<?= number_format($depositAmount, 2) ?></small>
+                                            </a>
+                                        <?php elseif ($depositPaid && $o['status'] === 'pending'): ?>
+                                            <span style="color: var(--success); font-size: 0.85rem;">Awaiting Start</span>
+                                        <?php elseif ($o['status'] === 'in_progress'): ?>
+                                            <span style="color: var(--primary); font-size: 0.85rem;">Building</span>
+                                        <?php elseif ($o['status'] === 'completed'): ?>
+                                            <span style="color: var(--success); font-size: 0.85rem;">Complete</span>
+                                        <?php elseif ($o['status'] === 'quote' && !$orderPrice): ?>
+                                            <span style="color: var(--gray-500); font-size: 0.85rem;">Awaiting Quote</span>
+                                        <?php else: ?>
+                                            <span style="color: var(--gray-400);">—</span>
                                         <?php endif; ?>
                                     </td>
                                 </tr>

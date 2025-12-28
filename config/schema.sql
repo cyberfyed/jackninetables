@@ -104,3 +104,9 @@ CREATE INDEX idx_messages_read ON contact_messages(is_read);
 
 -- ALTER TABLE users ADD COLUMN is_admin TINYINT(1) DEFAULT 0 AFTER email_verified;
 -- ALTER TABLE orders ADD COLUMN admin_notes TEXT AFTER notes;
+
+-- Payment tracking columns for orders
+-- ALTER TABLE orders ADD COLUMN deposit_amount DECIMAL(10,2) DEFAULT NULL AFTER final_price;
+-- ALTER TABLE orders ADD COLUMN deposit_paid_at DATETIME DEFAULT NULL AFTER deposit_amount;
+-- ALTER TABLE orders ADD COLUMN paypal_order_id VARCHAR(50) DEFAULT NULL AFTER deposit_paid_at;
+-- ALTER TABLE orders ADD COLUMN paypal_transaction_id VARCHAR(50) DEFAULT NULL AFTER paypal_order_id;

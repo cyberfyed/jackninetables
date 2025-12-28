@@ -138,4 +138,54 @@ class Order {
     private function generateOrderNumber() {
         return 'JNT-' . date('Ymd') . '-' . strtoupper(bin2hex(random_bytes(3)));
     }
+
+    /**
+     * Record deposit payment
+     */
+    public function recordDeposit($orderId, $amount, $paypalOrderId, $transactionId) {
+        $query = "UPDATE {$this->table}
+                  SET deposit_amount = :amount,
+                      deposit_paid_at = NOW(),
+                      paypal_order_id = :paypal_order_id,
+                      paypal_transaction_id = :transaction_id,
+                      status = 'pending'
+                  WHERE id = :id";
+
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(':amount', $amount);
+        $stmt->bindParam(':paypal_order_id', $paypalOrderId);
+        $stmt->bindParam(':transaction_id', $transactionId);
+        $stmt->bindParam(':id', $orderId);
+
+        return $stmt->execute();
+    }
+
+    /**
+     * Check if order needs deposit payment
+     */
+    public function needsDeposit($order) {
+        // Must have a price set
+        if (empty($order['estimated_price']) && empty($order['final_price'])) {
+            return false;
+        }
+
+        // Must not have paid deposit already
+        if (!empty($order['deposit_paid_at'])) {
+            return false;
+        }
+
+        // Must be in quote status (admin has priced it, awaiting customer payment)
+        if ($order['status'] !== 'quote') {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Get the price to use for deposit calculation
+     */
+    public function getOrderPrice($order) {
+        return $order['final_price'] ?? $order['estimated_price'] ?? 0;
+    }
 }

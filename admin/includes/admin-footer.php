@@ -125,7 +125,7 @@
                 alert.style.opacity = '0';
                 alert.style.transition = 'opacity 0.3s';
                 setTimeout(() => alert.remove(), 300);
-            }, 5000);
+            }, 15000);
         });
 
         // Custom confirmation modal

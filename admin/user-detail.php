@@ -4,6 +4,27 @@ require_once __DIR__ . '/../classes/Admin.php';
 
 $admin = new Admin($conn);
 
+// Color name mappings
+$colorNames = [
+    // Rail colors
+    '#1a1a1a' => 'Black',
+    '#3d2314' => 'Dark Brown',
+    '#1a2744' => 'Navy Blue',
+    '#f5f5f5' => 'White',
+    '#c4a77d' => 'Tan',
+    '#8b0000' => 'Red',
+    // Speed cloth surface colors
+    '#1a472a' => 'Casino Green',
+    '#1a3a5c' => 'Blue',
+    '#6b1c1c' => 'Red',
+    '#3d1a4d' => 'Purple',
+    // Velveteen surface colors
+    '#2d5a3d' => 'Green',
+    '#2a4a6d' => 'Blue',
+    '#8b2c2c' => 'Red',
+    '#252525' => 'Black',
+];
+
 $id = intval($_GET['id'] ?? 0);
 $user = $admin->getUserById($id);
 
@@ -137,9 +158,21 @@ $designs = $admin->getUserDesigns($id);
                                 <td><?= sanitize($design['name']) ?></td>
                                 <td><?= ($data['tableStyle'] ?? '') === 'racetrack' ? 'Racetrack' : 'Standard' ?></td>
                                 <td>
-                                    <div style="display: flex; gap: 4px;">
-                                        <span class="color-swatch" style="width: 20px; height: 20px; background: <?= sanitize($data['railColor'] ?? '#000') ?>;"></span>
-                                        <span class="color-swatch" style="width: 20px; height: 20px; background: <?= sanitize($data['surfaceColor'] ?? '#000') ?>;"></span>
+                                    <?php
+                                    $railColor = strtolower($data['railColor'] ?? '#000');
+                                    $surfaceColor = strtolower($data['surfaceColor'] ?? '#000');
+                                    $railName = $colorNames[$railColor] ?? 'Custom';
+                                    $surfaceName = $colorNames[$surfaceColor] ?? 'Custom';
+                                    ?>
+                                    <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+                                        <span style="display: flex; align-items: center; gap: 4px;">
+                                            <span class="color-swatch" style="width: 18px; height: 18px; background: <?= sanitize($railColor) ?>;"></span>
+                                            <small style="color: var(--gray-400);"><?= sanitize($railName) ?></small>
+                                        </span>
+                                        <span style="display: flex; align-items: center; gap: 4px;">
+                                            <span class="color-swatch" style="width: 18px; height: 18px; background: <?= sanitize($surfaceColor) ?>;"></span>
+                                            <small style="color: var(--gray-400);"><?= sanitize($surfaceName) ?></small>
+                                        </span>
                                     </div>
                                 </td>
                                 <td><?= $design['is_favorite'] ? '&#9733;' : '' ?></td>

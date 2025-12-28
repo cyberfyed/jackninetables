@@ -4,6 +4,27 @@ require_once __DIR__ . '/../classes/Admin.php';
 
 $admin = new Admin($conn);
 
+// Color name mappings
+$colorNames = [
+    // Rail colors
+    '#1a1a1a' => 'Black',
+    '#3d2314' => 'Dark Brown',
+    '#1a2744' => 'Navy Blue',
+    '#f5f5f5' => 'White',
+    '#c4a77d' => 'Tan',
+    '#8b0000' => 'Red',
+    // Speed cloth surface colors
+    '#1a472a' => 'Casino Green',
+    '#1a3a5c' => 'Blue',
+    '#6b1c1c' => 'Red',
+    '#3d1a4d' => 'Purple',
+    // Velveteen surface colors
+    '#2d5a3d' => 'Green',
+    '#2a4a6d' => 'Blue',
+    '#8b2c2c' => 'Red',
+    '#252525' => 'Black',
+];
+
 $id = intval($_GET['id'] ?? 0);
 $order = $admin->getOrderById($id);
 
@@ -76,7 +97,12 @@ $cupHolders = !empty($design['cupHolders']) ? ($design['cupHolderCount'] ?? 0) .
                     <div class="info-item">
                         <span class="info-label">Rail Color</span>
                         <span class="info-value">
-                            <span class="color-swatch" style="background: <?= sanitize($design['railColor'] ?? '#000') ?>;"></span>
+                            <?php
+                            $railColor = strtolower($design['railColor'] ?? '#000');
+                            $railColorName = $colorNames[$railColor] ?? 'Custom';
+                            ?>
+                            <span class="color-swatch" style="background: <?= sanitize($railColor) ?>;"></span>
+                            <?= sanitize($railColorName) ?>
                         </span>
                     </div>
                     <?php if (($design['tableStyle'] ?? '') === 'racetrack' && !empty($design['racetrackColor'])): ?>
@@ -92,7 +118,12 @@ $cupHolders = !empty($design['cupHolders']) ? ($design['cupHolderCount'] ?? 0) .
                     <div class="info-item">
                         <span class="info-label">Surface Color</span>
                         <span class="info-value">
-                            <span class="color-swatch" style="background: <?= sanitize($design['surfaceColor'] ?? '#000') ?>;"></span>
+                            <?php
+                            $surfaceColor = strtolower($design['surfaceColor'] ?? '#000');
+                            $surfaceColorName = $colorNames[$surfaceColor] ?? 'Custom';
+                            ?>
+                            <span class="color-swatch" style="background: <?= sanitize($surfaceColor) ?>;"></span>
+                            <?= sanitize($surfaceColorName) ?>
                         </span>
                     </div>
                     <div class="info-item">

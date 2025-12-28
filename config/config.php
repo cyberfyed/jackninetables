@@ -30,6 +30,22 @@ function requireLogin() {
     }
 }
 
+function isAdmin() {
+    return isLoggedIn() && ($_SESSION['is_admin'] ?? false);
+}
+
+function requireAdmin() {
+    if (!isLoggedIn()) {
+        setFlash('error', 'Please log in to access this page.');
+        redirect('login.php');
+    }
+
+    if (!isAdmin()) {
+        setFlash('error', 'You do not have permission to access this area.');
+        redirect('dashboard.php');
+    }
+}
+
 function sanitize($data) {
     return htmlspecialchars(trim($data), ENT_QUOTES, 'UTF-8');
 }

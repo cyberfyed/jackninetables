@@ -37,7 +37,7 @@ class User {
     }
 
     public function login($email, $password) {
-        $query = "SELECT id, first_name, last_name, email, password, email_verified FROM {$this->table} WHERE email = :email LIMIT 1";
+        $query = "SELECT id, first_name, last_name, email, password, email_verified, is_admin FROM {$this->table} WHERE email = :email LIMIT 1";
         $stmt = $this->conn->prepare($query);
         $stmt->bindParam(':email', $email);
         $stmt->execute();
@@ -54,6 +54,7 @@ class User {
             $_SESSION['user_name'] = $user['first_name'] . ' ' . $user['last_name'];
             $_SESSION['user_email'] = $user['email'];
             $_SESSION['email_verified'] = (bool)$user['email_verified'];
+            $_SESSION['is_admin'] = (bool)$user['is_admin'];
 
             return ['success' => true, 'user' => $user];
         }

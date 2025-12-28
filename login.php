@@ -4,6 +4,9 @@ require_once 'classes/User.php';
 
 // Redirect if already logged in
 if (isLoggedIn()) {
+    if (isAdmin()) {
+        redirect('admin/');
+    }
     redirect('dashboard.php');
 }
 
@@ -31,6 +34,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             if ($result['success']) {
                 setFlash('success', 'Welcome back, ' . $_SESSION['user_name'] . '!');
+                if (isAdmin()) {
+                    redirect('admin/');
+                }
                 redirect('dashboard.php');
             } else {
                 $errors[] = $result['error'];

@@ -116,8 +116,6 @@ $designs = $admin->getUserDesigns($id);
                                 <td>
                                     <?php if ($order['final_price']): ?>
                                         $<?= number_format($order['final_price'], 2) ?>
-                                    <?php elseif ($order['estimated_price']): ?>
-                                        ~$<?= number_format($order['estimated_price'], 2) ?>
                                     <?php else: ?>
                                         --
                                     <?php endif; ?>

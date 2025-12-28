@@ -136,8 +136,6 @@ $queryString = http_build_query($queryParams);
                         <td>
                             <?php if ($order['final_price']): ?>
                                 <strong>$<?= number_format($order['final_price'], 2) ?></strong>
-                            <?php elseif ($order['estimated_price']): ?>
-                                ~$<?= number_format($order['estimated_price'], 2) ?>
                             <?php else: ?>
                                 <span style="color: var(--gray-400);">--</span>
                             <?php endif; ?>

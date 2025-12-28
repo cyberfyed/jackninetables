@@ -165,7 +165,7 @@ class Order {
      */
     public function needsDeposit($order) {
         // Must have a price set
-        if (empty($order['estimated_price']) && empty($order['final_price'])) {
+        if (empty($order['final_price'])) {
             return false;
         }
 
@@ -186,6 +186,6 @@ class Order {
      * Get the price to use for deposit calculation
      */
     public function getOrderPrice($order) {
-        return $order['final_price'] ?? $order['estimated_price'] ?? 0;
+        return $order['final_price'] ?? 0;
     }
 }

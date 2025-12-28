@@ -136,7 +136,7 @@ class Admin
         $fields = [];
         $params = [':id' => $id];
 
-        $allowedFields = ['status', 'estimated_price', 'final_price', 'admin_notes'];
+        $allowedFields = ['status', 'final_price', 'admin_notes'];
 
         foreach ($allowedFields as $field) {
             if (isset($data[$field])) {

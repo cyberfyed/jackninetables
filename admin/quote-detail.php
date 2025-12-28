@@ -43,8 +43,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } else {
         $result = $admin->updateOrder($id, [
             'status' => $_POST['status'] ?? $order['status'],
-            'estimated_price' => $_POST['estimated_price'] ?? null,
-            'final_price' => $_POST['final_price'] ?? null,
+            'final_price' => $_POST['price'] ?? null,
             'admin_notes' => $_POST['admin_notes'] ?? ''
         ]);
 
@@ -168,22 +167,13 @@ $cupHolders = !empty($design['cupHolders']) ? ($design['cupHolderCount'] ?? 0) .
                         </select>
                     </div>
 
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
-                        <div class="admin-form-group">
-                            <label class="admin-form-label" for="estimated_price">Estimated Price ($)</label>
-                            <input type="number" name="estimated_price" id="estimated_price"
-                                   class="admin-form-control" step="0.01" min="0"
-                                   value="<?= $order['estimated_price'] ? sanitize($order['estimated_price']) : '' ?>"
-                                   placeholder="0.00">
-                        </div>
-
-                        <div class="admin-form-group">
-                            <label class="admin-form-label" for="final_price">Final Price ($)</label>
-                            <input type="number" name="final_price" id="final_price"
-                                   class="admin-form-control" step="0.01" min="0"
-                                   value="<?= $order['final_price'] ? sanitize($order['final_price']) : '' ?>"
-                                   placeholder="0.00">
-                        </div>
+                    <div class="admin-form-group">
+                        <label class="admin-form-label" for="price">Price ($)</label>
+                        <input type="number" name="price" id="price"
+                               class="admin-form-control" step="0.01" min="0"
+                               value="<?= $order['final_price'] ? sanitize($order['final_price']) : '' ?>"
+                               placeholder="0.00">
+                        <small style="color: var(--gray-500);">Customer will pay <?= DEPOSIT_PERCENTAGE ?>% deposit to start production</small>
                     </div>
 
                     <div class="admin-form-group">

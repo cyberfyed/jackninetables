@@ -83,8 +83,6 @@ require_once 'includes/header.php';
                                     <td style="padding: 1rem; border-bottom: 1px solid var(--gray-200); text-align: right;">
                                         <?php if ($o['final_price']): ?>
                                             <strong>$<?= number_format($o['final_price'], 2) ?></strong>
-                                        <?php elseif ($o['estimated_price']): ?>
-                                            <span style="color: var(--gray-600);">~$<?= number_format($o['estimated_price'], 2) ?></span>
                                         <?php else: ?>
                                             <span style="color: var(--gray-500);">Pending</span>
                                         <?php endif; ?>

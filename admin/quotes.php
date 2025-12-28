@@ -9,13 +9,13 @@ $admin = new Admin($conn);
 $colorNames = [
     // Rail colors
     '#1a1a1a' => 'Black',
-    '#3d2314' => 'Dark Brown',
-    '#1a2744' => 'Navy Blue',
+    '#3d2314' => 'Brown',
+    '#1a2744' => 'Blue',
     '#f5f5f5' => 'White',
     '#c4a77d' => 'Tan',
     '#8b0000' => 'Red',
     // Speed cloth surface colors
-    '#1a472a' => 'Casino Green',
+    '#1a472a' => 'Green',
     '#1a3a5c' => 'Blue',
     '#6b1c1c' => 'Red',
     '#3d1a4d' => 'Purple',

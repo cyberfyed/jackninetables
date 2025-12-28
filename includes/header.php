@@ -43,6 +43,10 @@
                             <li><a href="<?= SITE_URL ?>/my-designs.php">My Designs</a></li>
                             <li><a href="<?= SITE_URL ?>/my-orders.php">My Orders</a></li>
                             <li><a href="<?= SITE_URL ?>/profile.php">Profile</a></li>
+                            <?php if (isAdmin()): ?>
+                            <li class="divider"></li>
+                            <li><a href="<?= SITE_URL ?>/admin/">Admin Dashboard</a></li>
+                            <?php endif; ?>
                             <li class="divider"></li>
                             <li><a href="<?= SITE_URL ?>/logout.php">Logout</a></li>
                         </ul>

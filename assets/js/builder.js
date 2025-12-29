@@ -32,6 +32,7 @@ class PokerTableBuilder {
 
     init() {
         this.bindEvents();
+        this.setupMobileSticky();
 
         // Load saved design if available
         if (typeof loadedDesign !== 'undefined' && loadedDesign) {
@@ -42,6 +43,40 @@ class PokerTableBuilder {
         this.toggleRacetrackOptions();
 
         this.renderTable();
+    }
+
+    setupMobileSticky() {
+        // Apply fixed positioning for mobile via JS
+        if (window.innerWidth <= 992) {
+            const builderLeft = document.querySelector('.builder-left');
+            const builderPage = document.querySelector('.builder-page');
+            const builderHero = document.querySelector('.builder-hero');
+            const builderPreview = document.querySelector('.builder-preview');
+            const previewCard = document.querySelector('.preview-card');
+            const previewContainer = document.querySelector('.preview-container');
+
+            // Fixed gray area - taller to extend below table
+            if (builderLeft) {
+                builderLeft.style.cssText = 'position: fixed; top: 60px; left: 0; right: 0; width: 100%; height: 280px; z-index: 100; background: #e8e8e8; box-shadow: 0 4px 15px rgba(0,0,0,0.2);';
+            }
+            // Push options down below the fixed area
+            if (builderPage) {
+                builderPage.style.paddingTop = '300px';
+            }
+            if (builderHero) {
+                builderHero.style.display = 'none';
+            }
+            // Position table at top of the gray area
+            if (builderPreview) {
+                builderPreview.style.cssText = 'padding: 10px 10px 40px 10px; height: auto;';
+            }
+            if (previewCard) {
+                previewCard.style.cssText = 'padding: 0; margin: 0; background: transparent; box-shadow: none; max-width: 100%;';
+            }
+            if (previewContainer) {
+                previewContainer.style.cssText = 'padding: 15px; background: linear-gradient(135deg, #f0f0f0 0%, #e0e0e0 100%); border-radius: 12px;';
+            }
+        }
     }
 
     loadDesign(design) {
@@ -433,13 +468,6 @@ class PokerTableBuilder {
         }
 
         this.svg.innerHTML = svg;
-
-        // Auto-scroll to top on mobile after option changes
-        if (window.innerWidth <= 768) {
-            setTimeout(() => {
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-            }, 100);
-        }
     }
 
     renderCupHolders(cx, cy, rx, ry, offset, inRacetrack = false) {

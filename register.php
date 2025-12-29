@@ -41,6 +41,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $errors[] = 'Password is required.';
         } elseif (strlen($formData['password']) < 8) {
             $errors[] = 'Password must be at least 8 characters.';
+        } else {
+            if (!preg_match('/[A-Z]/', $formData['password'])) {
+                $errors[] = 'Password must contain at least one uppercase letter.';
+            }
+            if (!preg_match('/[a-z]/', $formData['password'])) {
+                $errors[] = 'Password must contain at least one lowercase letter.';
+            }
+            if (!preg_match('/[0-9]/', $formData['password'])) {
+                $errors[] = 'Password must contain at least one number.';
+            }
         }
         if ($formData['password'] !== $formData['confirm_password']) {
             $errors[] = 'Passwords do not match.';
@@ -120,7 +130,7 @@ require_once 'includes/header.php';
                 <div class="form-group">
                     <label class="form-label" for="password">Password</label>
                     <input type="password" id="password" name="password" class="form-control" required>
-                    <div class="form-hint">Minimum 8 characters</div>
+                    <div class="form-hint">Minimum 8 characters with uppercase, lowercase, and number</div>
                 </div>
 
                 <div class="form-group">

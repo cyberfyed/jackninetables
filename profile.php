@@ -56,7 +56,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['change_password'])) {
             $errors[] = 'All password fields are required.';
         } elseif (strlen($newPassword) < 8) {
             $errors[] = 'New password must be at least 8 characters.';
-        } elseif ($newPassword !== $confirmPassword) {
+        } else {
+            if (!preg_match('/[A-Z]/', $newPassword)) {
+                $errors[] = 'New password must contain at least one uppercase letter.';
+            }
+            if (!preg_match('/[a-z]/', $newPassword)) {
+                $errors[] = 'New password must contain at least one lowercase letter.';
+            }
+            if (!preg_match('/[0-9]/', $newPassword)) {
+                $errors[] = 'New password must contain at least one number.';
+            }
+        }
+
+        if ($newPassword !== $confirmPassword) {
             $errors[] = 'New passwords do not match.';
         }
 
@@ -185,7 +197,7 @@ require_once 'includes/header.php';
                     <div class="form-group">
                         <label class="form-label" for="new_password">New Password</label>
                         <input type="password" id="new_password" name="new_password" class="form-control" required>
-                        <div class="form-hint">Minimum 8 characters</div>
+                        <div class="form-hint">Minimum 8 characters with uppercase, lowercase, and number</div>
                     </div>
 
                     <div class="form-group">

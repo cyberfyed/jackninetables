@@ -65,7 +65,7 @@ $queryString = http_build_query($queryParams);
             <p>Try adjusting your filters or search terms.</p>
         </div>
     <?php else: ?>
-        <table class="admin-table">
+        <table class="admin-table mobile-cards">
             <thead>
                 <tr>
                     <th>From</th>
@@ -79,29 +79,29 @@ $queryString = http_build_query($queryParams);
             <tbody>
                 <?php foreach ($messages as $message): ?>
                     <tr style="<?= !$message['is_read'] ? 'background: rgba(239, 68, 68, 0.05);' : '' ?>">
-                        <td>
+                        <td data-label="From">
                             <div style="<?= !$message['is_read'] ? 'font-weight: 600;' : '' ?>">
                                 <?= sanitize($message['name']) ?>
                             </div>
                             <small style="color: var(--gray-500);"><?= sanitize($message['email']) ?></small>
                         </td>
-                        <td>
+                        <td data-label="Subject">
                             <a href="<?= SITE_URL ?>/admin/message-detail.php?id=<?= $message['id'] ?>" style="<?= !$message['is_read'] ? 'font-weight: 600;' : '' ?>">
                                 <?= sanitize($message['subject'] ?: 'No subject') ?>
                             </a>
                         </td>
-                        <td>
+                        <td data-label="Message">
                             <span style="color: var(--gray-600);">
                                 <?= sanitize(substr($message['message'], 0, 50)) ?><?= strlen($message['message']) > 50 ? '...' : '' ?>
                             </span>
                         </td>
-                        <td>
+                        <td data-label="Status">
                             <span class="status-badge <?= $message['is_read'] ? 'read' : 'unread' ?>">
                                 <?= $message['is_read'] ? 'Read' : 'Unread' ?>
                             </span>
                         </td>
-                        <td><?= date('M j, Y', strtotime($message['created_at'])) ?></td>
-                        <td>
+                        <td data-label="Date"><?= date('M j, Y', strtotime($message['created_at'])) ?></td>
+                        <td data-label="">
                             <div class="table-actions">
                                 <a href="<?= SITE_URL ?>/admin/message-detail.php?id=<?= $message['id'] ?>" class="table-action view">View</a>
                             </div>

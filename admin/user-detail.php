@@ -86,7 +86,7 @@ $designs = $admin->getUserDesigns($id);
                     <div class="empty-state-title">No orders yet</div>
                 </div>
             <?php else: ?>
-                <table class="admin-table">
+                <table class="admin-table mobile-cards">
                     <thead>
                         <tr>
                             <th>Order #</th>
@@ -139,7 +139,7 @@ $designs = $admin->getUserDesigns($id);
                     <div class="empty-state-title">No saved designs</div>
                 </div>
             <?php else: ?>
-                <table class="admin-table">
+                <table class="admin-table mobile-cards">
                     <thead>
                         <tr>
                             <th>Name</th>

@@ -78,7 +78,7 @@ $queryString = http_build_query($queryParams);
             <p>Try adjusting your filters or search terms.</p>
         </div>
     <?php else: ?>
-        <table class="admin-table">
+        <table class="admin-table mobile-cards">
             <thead>
                 <tr>
                     <th>Name</th>
@@ -93,7 +93,7 @@ $queryString = http_build_query($queryParams);
             <tbody>
                 <?php foreach ($users as $user): ?>
                     <tr>
-                        <td>
+                        <td data-label="Name">
                             <a href="<?= SITE_URL ?>/admin/user-detail.php?id=<?= $user['id'] ?>">
                                 <strong><?= sanitize($user['first_name'] . ' ' . $user['last_name']) ?></strong>
                             </a>
@@ -101,21 +101,21 @@ $queryString = http_build_query($queryParams);
                                 <span class="status-badge" style="background: rgba(139, 92, 246, 0.1); color: #8b5cf6; margin-left: 0.5rem;">Admin</span>
                             <?php endif; ?>
                         </td>
-                        <td>
+                        <td data-label="Email">
                             <div><?= sanitize($user['email']) ?></div>
                             <?php if ($user['phone']): ?>
                                 <small style="color: var(--gray-500);"><?= sanitize($user['phone']) ?></small>
                             <?php endif; ?>
                         </td>
-                        <td>
+                        <td data-label="Status">
                             <span class="status-badge <?= $user['email_verified'] ? 'completed' : 'pending' ?>">
                                 <?= $user['email_verified'] ? 'Verified' : 'Unverified' ?>
                             </span>
                         </td>
-                        <td><?= $user['order_count'] ?></td>
-                        <td><?= $user['design_count'] ?></td>
-                        <td><?= date('M j, Y', strtotime($user['created_at'])) ?></td>
-                        <td>
+                        <td data-label="Orders"><?= $user['order_count'] ?></td>
+                        <td data-label="Designs"><?= $user['design_count'] ?></td>
+                        <td data-label="Joined"><?= date('M j, Y', strtotime($user['created_at'])) ?></td>
+                        <td data-label="">
                             <div class="table-actions">
                                 <a href="<?= SITE_URL ?>/admin/user-detail.php?id=<?= $user['id'] ?>" class="table-action view">View</a>
                             </div>

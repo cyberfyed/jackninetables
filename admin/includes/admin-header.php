@@ -97,6 +97,7 @@ $currentPage = basename($_SERVER['PHP_SELF'], '.php');
         <!-- Main Content -->
         <main class="admin-main">
             <header class="admin-topbar">
+                <button class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="Toggle menu">&#9776;</button>
                 <h1 class="topbar-title"><?= isset($pageTitle) ? sanitize($pageTitle) : 'Dashboard' ?></h1>
                 <div class="topbar-actions">
                     <div class="topbar-user">

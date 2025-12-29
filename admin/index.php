@@ -100,7 +100,7 @@ $needsQuote = $admin->getOrdersNeedingAction('quote_started', 5);
 $inProduction = $admin->getOrdersNeedingAction('deposit_paid', 5);
 ?>
 
-<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+<div class="dashboard-grid">
     <!-- Orders Needing Quotes -->
     <div class="admin-table-container">
         <div class="admin-table-header">
@@ -113,7 +113,7 @@ $inProduction = $admin->getOrdersNeedingAction('deposit_paid', 5);
                 <div class="empty-state-title">All caught up!</div>
             </div>
         <?php else: ?>
-            <table class="admin-table">
+            <table class="admin-table mobile-cards">
                 <thead>
                     <tr>
                         <th>Order #</th>
@@ -125,10 +125,10 @@ $inProduction = $admin->getOrdersNeedingAction('deposit_paid', 5);
                 <tbody>
                     <?php foreach ($needsQuote as $order): ?>
                         <tr>
-                            <td><strong><?= sanitize($order['order_number']) ?></strong></td>
-                            <td><?= sanitize($order['first_name'] . ' ' . $order['last_name']) ?></td>
-                            <td><?= date('M j', strtotime($order['created_at'])) ?></td>
-                            <td>
+                            <td data-label="Order #"><strong><?= sanitize($order['order_number']) ?></strong></td>
+                            <td data-label="Customer"><?= sanitize($order['first_name'] . ' ' . $order['last_name']) ?></td>
+                            <td data-label="Date"><?= date('M j', strtotime($order['created_at'])) ?></td>
+                            <td data-label="">
                                 <a href="<?= SITE_URL ?>/admin/quote-detail.php?id=<?= $order['id'] ?>" class="btn btn-sm btn-primary">
                                     Set Price
                                 </a>
@@ -152,7 +152,7 @@ $inProduction = $admin->getOrdersNeedingAction('deposit_paid', 5);
                 <div class="empty-state-title">No tables in production</div>
             </div>
         <?php else: ?>
-            <table class="admin-table">
+            <table class="admin-table mobile-cards">
                 <thead>
                     <tr>
                         <th>Order #</th>
@@ -164,10 +164,10 @@ $inProduction = $admin->getOrdersNeedingAction('deposit_paid', 5);
                 <tbody>
                     <?php foreach ($inProduction as $order): ?>
                         <tr>
-                            <td><strong><?= sanitize($order['order_number']) ?></strong></td>
-                            <td><?= sanitize($order['first_name'] . ' ' . $order['last_name']) ?></td>
-                            <td>$<?= number_format($order['final_price'], 2) ?></td>
-                            <td>
+                            <td data-label="Order #"><strong><?= sanitize($order['order_number']) ?></strong></td>
+                            <td data-label="Customer"><?= sanitize($order['first_name'] . ' ' . $order['last_name']) ?></td>
+                            <td data-label="Price">$<?= number_format($order['final_price'], 2) ?></td>
+                            <td data-label="">
                                 <a href="<?= SITE_URL ?>/admin/quote-detail.php?id=<?= $order['id'] ?>" class="btn btn-sm">
                                     View
                                 </a>
@@ -192,7 +192,7 @@ $inProduction = $admin->getOrdersNeedingAction('deposit_paid', 5);
             <div class="empty-state-title">No messages yet</div>
         </div>
     <?php else: ?>
-        <table class="admin-table">
+        <table class="admin-table mobile-cards">
             <thead>
                 <tr>
                     <th>From</th>
@@ -204,18 +204,18 @@ $inProduction = $admin->getOrdersNeedingAction('deposit_paid', 5);
             <tbody>
                 <?php foreach ($recentMessages as $message): ?>
                     <tr>
-                        <td>
+                        <td data-label="From">
                             <a href="<?= SITE_URL ?>/admin/message-detail.php?id=<?= $message['id'] ?>">
                                 <?= sanitize($message['name']) ?>
                             </a>
                         </td>
-                        <td><?= sanitize($message['subject'] ?: 'No subject') ?></td>
-                        <td>
+                        <td data-label="Subject"><?= sanitize($message['subject'] ?: 'No subject') ?></td>
+                        <td data-label="Status">
                             <span class="status-badge <?= $message['is_read'] ? 'read' : 'unread' ?>">
                                 <?= $message['is_read'] ? 'Read' : 'Unread' ?>
                             </span>
                         </td>
-                        <td><?= date('M j, Y', strtotime($message['created_at'])) ?></td>
+                        <td data-label="Date"><?= date('M j, Y', strtotime($message['created_at'])) ?></td>
                     </tr>
                 <?php endforeach; ?>
             </tbody>

@@ -94,7 +94,7 @@ $queryString = http_build_query($queryParams);
             <p>Try adjusting your filters or search terms.</p>
         </div>
     <?php else: ?>
-        <table class="admin-table">
+        <table class="admin-table mobile-cards">
             <thead>
                 <tr>
                     <th>Order #</th>
@@ -109,16 +109,16 @@ $queryString = http_build_query($queryParams);
             <tbody>
                 <?php foreach ($orders as $order): ?>
                     <tr>
-                        <td>
+                        <td data-label="Order #">
                             <a href="<?= SITE_URL ?>/admin/quote-detail.php?id=<?= $order['id'] ?>">
                                 <strong><?= sanitize($order['order_number']) ?></strong>
                             </a>
                         </td>
-                        <td>
+                        <td data-label="Customer">
                             <div><?= sanitize($order['first_name'] . ' ' . $order['last_name']) ?></div>
                             <small style="color: var(--gray-500);"><?= sanitize($order['email']) ?></small>
                         </td>
-                        <td>
+                        <td data-label="Table">
                             <?php
                             $design = $order['design_data'];
                             $style = ($design['tableStyle'] ?? '') === 'racetrack' ? 'Racetrack' : 'Standard';
@@ -139,20 +139,20 @@ $queryString = http_build_query($queryParams);
                                 </span>
                             </div>
                         </td>
-                        <td>
+                        <td data-label="Status">
                             <span class="status-badge <?= $order['status'] ?>">
                                 <?= $statusLabels[$order['status']] ?? ucfirst(str_replace('_', ' ', $order['status'])) ?>
                             </span>
                         </td>
-                        <td>
+                        <td data-label="Price">
                             <?php if ($order['final_price']): ?>
                                 <strong>$<?= number_format($order['final_price'], 2) ?></strong>
                             <?php else: ?>
                                 <span style="color: var(--gray-400);">--</span>
                             <?php endif; ?>
                         </td>
-                        <td><?= date('M j, Y', strtotime($order['created_at'])) ?></td>
-                        <td>
+                        <td data-label="Date"><?= date('M j, Y', strtotime($order['created_at'])) ?></td>
+                        <td data-label="">
                             <div class="table-actions">
                                 <a href="<?= SITE_URL ?>/admin/quote-detail.php?id=<?= $order['id'] ?>" class="table-action view">View</a>
                             </div>

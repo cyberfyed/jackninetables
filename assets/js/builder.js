@@ -433,6 +433,13 @@ class PokerTableBuilder {
         }
 
         this.svg.innerHTML = svg;
+
+        // Auto-scroll to top on mobile after option changes
+        if (window.innerWidth <= 768) {
+            setTimeout(() => {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }, 100);
+        }
     }
 
     renderCupHolders(cx, cy, rx, ry, offset, inRacetrack = false) {

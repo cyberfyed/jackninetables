@@ -15,7 +15,9 @@ if (file_exists($envFile)) {
 
 // Site configuration
 define('SITE_NAME', 'Jack Nine Tables');
-define('SITE_URL', 'http://localhost/jackninetablesnew');
+$protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+$host = $_SERVER['HTTP_HOST'] ?? 'localhost';
+define('SITE_URL', "{$protocol}://{$host}/jackninetablesnew");
 define('SITE_EMAIL', 'info@jackninetables.com');
 
 // PayPal configuration (loaded from .env)

@@ -98,7 +98,7 @@ require_once 'includes/header.php';
                 </div>
             <?php endif; ?>
 
-            <form method="POST" action="" data-validate>
+            <form method="POST" action="" data-validate novalidate>
                 <input type="hidden" name="csrf_token" value="<?= getCSRFToken() ?>">
 
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">

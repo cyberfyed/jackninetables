@@ -53,11 +53,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             });
 
-            // Password confirmation check
+            // Password confirmation check (only if field has a value)
             const password = form.querySelector('input[name="password"]');
             const confirmPassword = form.querySelector('input[name="confirm_password"]');
 
-            if (password && confirmPassword && password.value !== confirmPassword.value) {
+            if (password && confirmPassword && confirmPassword.value.trim() && password.value !== confirmPassword.value) {
                 isValid = false;
                 showError(confirmPassword, 'Passwords do not match');
             }
@@ -78,10 +78,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function removeError(field) {
         field.classList.remove('is-invalid');
-        const existingError = field.parentNode.querySelector('.form-error');
-        if (existingError) {
-            existingError.remove();
-        }
+        const existingErrors = field.parentNode.querySelectorAll('.form-error');
+        existingErrors.forEach(function(error) {
+            error.remove();
+        });
     }
 
     function isValidEmail(email) {

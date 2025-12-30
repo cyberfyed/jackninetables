@@ -74,7 +74,7 @@ require_once 'includes/header.php';
                 </div>
             <?php endif; ?>
 
-            <form method="POST" action="" data-validate>
+            <form method="POST" action="" data-validate novalidate>
                 <input type="hidden" name="csrf_token" value="<?= getCSRFToken() ?>">
 
                 <div class="form-group">

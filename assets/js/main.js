@@ -3,6 +3,23 @@
  */
 
 document.addEventListener('DOMContentLoaded', function() {
+    // Cookie Consent Banner
+    const cookieBanner = document.getElementById('cookieBanner');
+    const acceptCookies = document.getElementById('acceptCookies');
+
+    if (cookieBanner && !localStorage.getItem('cookiesAccepted')) {
+        setTimeout(() => {
+            cookieBanner.classList.add('show');
+        }, 1000);
+    }
+
+    if (acceptCookies) {
+        acceptCookies.addEventListener('click', function() {
+            localStorage.setItem('cookiesAccepted', 'true');
+            cookieBanner.classList.remove('show');
+        });
+    }
+
     // Mobile Navigation Toggle
     const navToggle = document.querySelector('.nav-toggle');
     const navMenu = document.querySelector('.nav-menu');

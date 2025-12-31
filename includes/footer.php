@@ -40,6 +40,14 @@
         </div>
     </footer>
 
+    <!-- Cookie Consent Banner -->
+    <div id="cookieBanner" class="cookie-banner">
+        <div class="cookie-content">
+            <p>We use cookies to enhance your experience. By continuing to visit this site, you agree to our use of cookies. <a href="<?= SITE_URL ?>/privacy.php">Learn more</a></p>
+            <button id="acceptCookies" class="btn btn-primary">Accept</button>
+        </div>
+    </div>
+
     <script src="<?= SITE_URL ?>/assets/js/main.js"></script>
     <?php if (isset($extraJS)): ?>
         <?php foreach ($extraJS as $js): ?>

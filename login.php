@@ -33,6 +33,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $result = $user->login($email, $password);
 
             if ($result['success']) {
+                // Handle Remember Me cookie
+                if (!empty($_POST['remember'])) {
+                    setcookie('remembered_email', $email, time() + (30 * 24 * 60 * 60), '/', '', false, true);
+                } else {
+                    setcookie('remembered_email', '', time() - 3600, '/', '', false, true);
+                }
+
                 setFlash('success', 'Welcome back, ' . $_SESSION['user_name'] . '!');
 
                 // Check if there's a saved redirect destination
@@ -77,10 +84,11 @@ require_once 'includes/header.php';
             <form method="POST" action="" data-validate novalidate>
                 <input type="hidden" name="csrf_token" value="<?= getCSRFToken() ?>">
 
+                <?php $rememberedEmail = $_COOKIE['remembered_email'] ?? ''; ?>
                 <div class="form-group">
                     <label class="form-label" for="email">Email Address</label>
                     <input type="email" id="email" name="email" class="form-control"
-                           value="<?= sanitize($_POST['email'] ?? '') ?>" required>
+                           value="<?= sanitize($_POST['email'] ?? $rememberedEmail) ?>" required>
                 </div>
 
                 <div class="form-group">
@@ -90,7 +98,7 @@ require_once 'includes/header.php';
 
                 <div class="form-group" style="display: flex; justify-content: space-between; align-items: center;">
                     <label style="display: flex; align-items: center; gap: 0.5rem; font-weight: normal; cursor: pointer;">
-                        <input type="checkbox" name="remember"> Remember me
+                        <input type="checkbox" name="remember" <?= $rememberedEmail ? 'checked' : '' ?>> Remember me
                     </label>
                     <a href="<?= SITE_URL ?>/forgot-password.php">Forgot password?</a>
                 </div>

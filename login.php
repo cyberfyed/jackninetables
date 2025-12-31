@@ -46,8 +46,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 if (!empty($_SESSION['redirect_after_login'])) {
                     $redirectTo = $_SESSION['redirect_after_login'];
                     unset($_SESSION['redirect_after_login']);
-                    header('Location: ' . $redirectTo);
-                    exit;
+
+                    // Validate redirect URL to prevent open redirect attacks
+                    // Must start with / and not // (protocol-relative) or contain ://
+                    if (preg_match('/^\/[^\/]/', $redirectTo) && strpos($redirectTo, '://') === false) {
+                        header('Location: ' . $redirectTo);
+                        exit;
+                    }
                 }
 
                 if (isAdmin()) {

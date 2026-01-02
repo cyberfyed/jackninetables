@@ -108,13 +108,16 @@ class PokerTableBuilder {
         const materialInput = document.querySelector(`input[name="surface_material"][value="${design.surfaceMaterial}"]`);
         if (materialInput) materialInput.checked = true;
 
-        // Toggle color sets based on material
+        // Toggle color sets based on material (but don't let it override loaded color)
         this.toggleColorSets();
 
-        // Surface color (try both speedcloth and velveteen)
+        // Surface color (try both speedcloth and velveteen) - must set AFTER toggleColorSets
         const surfaceInput = document.querySelector(`input[name="surface_color"][value="${design.surfaceColor}"]`) ||
                              document.querySelector(`input[name="surface_color_velvet"][value="${design.surfaceColor}"]`);
-        if (surfaceInput) surfaceInput.checked = true;
+        if (surfaceInput) {
+            surfaceInput.checked = true;
+            this.config.surfaceColor = design.surfaceColor; // Restore after toggleColorSets overwrote it
+        }
 
         // Cup holders
         const cupHolderToggle = document.querySelector('input[name="cup_holders"]');
@@ -648,6 +651,7 @@ class PokerTableBuilder {
                     'Content-Type': 'application/json',
                     'X-Requested-With': 'XMLHttpRequest'
                 },
+                credentials: 'same-origin',
                 body: JSON.stringify(data)
             });
 
@@ -681,6 +685,7 @@ class PokerTableBuilder {
                     'Content-Type': 'application/json',
                     'X-Requested-With': 'XMLHttpRequest'
                 },
+                credentials: 'same-origin',
                 body: JSON.stringify(data)
             });
 

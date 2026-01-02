@@ -36,7 +36,7 @@ $admin = new Admin($db->connect());
 switch ($action) {
     case 'update_status':
         $status = $input['status'] ?? '';
-        $allowedStatuses = ['quote', 'pending', 'in_progress', 'completed', 'cancelled'];
+        $allowedStatuses = ['quote_started', 'price_sent', 'deposit_paid', 'invoice_sent', 'paid_in_full', 'cancelled'];
 
         if (!in_array($status, $allowedStatuses)) {
             echo json_encode(['success' => false, 'error' => 'Invalid status']);

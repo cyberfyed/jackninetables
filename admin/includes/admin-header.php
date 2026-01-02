@@ -9,7 +9,7 @@ $stmt = $conn->query("SELECT COUNT(*) as count FROM contact_messages WHERE is_re
 $unreadMessages = $stmt->fetch()['count'];
 
 // Get pending quotes count
-$stmt = $conn->query("SELECT COUNT(*) as count FROM orders WHERE status = 'quote'");
+$stmt = $conn->query("SELECT COUNT(*) as count FROM orders WHERE status = 'quote_started'");
 $pendingQuotes = $stmt->fetch()['count'];
 
 // Determine current page for active state

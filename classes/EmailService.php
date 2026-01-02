@@ -465,21 +465,63 @@ HTML;
         $notesText = !empty($notes) ? "Notes: " . $notes : '';
         $orderInfo = $orderNumber ? "Quote Reference: {$orderNumber}" : '';
 
+        $phoneHtml = !empty($customerPhone) ? "<tr><td>Phone</td><td>{$customerPhone}</td></tr>" : '';
+        $notesHtml = !empty($notes) ? "<tr><td>Notes</td><td>{$notes}</td></tr>" : '';
+
         $content = <<<HTML
 <h2 style="margin-top: 0;">New Quote Request!</h2>
 <p>A new quote request has been submitted.</p>
-<p>{$orderInfo}</p>
-<h3>Customer Information</h3>
-<p>Name: {$customerName}</p>
-<p>Email: {$customerEmail}</p>
-<h3>Table Design</h3>
-<p>Table Style: {$style}</p>
-<p>Size: 96 x 48 inches</p>
-<p>Rail Color: {$railColor}</p>
-<p>Playing Surface: {$surface}</p>
-<p>Surface Color: {$surfaceColor}</p>
-<p>Cup Holders: {$cupHolders}</p>
-<p>{$notesText}</p>
+<div class="highlight-box">
+    <h3 style="margin-top: 0; color: #1a472a;">Customer Information</h3>
+    <table class="info-table">
+        <tr>
+            <td>Quote Reference</td>
+            <td><strong>{$orderNumber}</strong></td>
+        </tr>
+        <tr>
+            <td>Name</td>
+            <td>{$customerName}</td>
+        </tr>
+        <tr>
+            <td>Email</td>
+            <td><a href="mailto:{$customerEmail}">{$customerEmail}</a></td>
+        </tr>
+        {$phoneHtml}
+    </table>
+</div>
+<div class="highlight-box">
+    <h3 style="margin-top: 0; color: #1a472a;">Table Design</h3>
+    <table class="info-table">
+        <tr>
+            <td>Table Style</td>
+            <td>{$style}</td>
+        </tr>
+        <tr>
+            <td>Size</td>
+            <td>96" x 48" (8ft x 4ft)</td>
+        </tr>
+        <tr>
+            <td>Rail Color</td>
+            <td><span class="color-swatch" style="background: {$railColor};"></span></td>
+        </tr>
+        <tr>
+            <td>Playing Surface</td>
+            <td>{$surface}</td>
+        </tr>
+        <tr>
+            <td>Surface Color</td>
+            <td><span class="color-swatch" style="background: {$surfaceColor};"></span></td>
+        </tr>
+        <tr>
+            <td>Cup Holders</td>
+            <td>{$cupHolders}</td>
+        </tr>
+        {$notesHtml}
+    </table>
+</div>
+<p style="text-align: center;">
+    <a href="mailto:{$customerEmail}" class="btn">Reply to {$customerName}</a>
+</p>
 HTML;
 
         $html = $this->wrapInLayout($content, 'New Quote Request');

@@ -146,12 +146,11 @@ class User {
         }
 
         $token = bin2hex(random_bytes(32));
-        $expires = date('Y-m-d H:i:s', strtotime('+1 hour'));
 
-        $query = "UPDATE {$this->table} SET reset_token = :token, reset_expires = :expires WHERE email = :email";
+        // Use MySQL's NOW() to avoid timezone mismatch between PHP and MySQL
+        $query = "UPDATE {$this->table} SET reset_token = :token, reset_expires = DATE_ADD(NOW(), INTERVAL 1 HOUR) WHERE email = :email";
         $stmt = $this->conn->prepare($query);
         $stmt->bindParam(':token', $token);
-        $stmt->bindParam(':expires', $expires);
         $stmt->bindParam(':email', $email);
         $stmt->execute();
 

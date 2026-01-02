@@ -417,6 +417,40 @@ textarea.form-control {
     resize: vertical;
 }
 
+/* Password Toggle */
+.password-wrapper {
+    position: relative;
+}
+
+.password-wrapper .form-control {
+    padding-right: 50px;
+}
+
+.password-toggle {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    padding: 5px;
+    cursor: pointer;
+    color: var(--gray-500);
+    transition: color var(--transition-fast);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.password-toggle:hover {
+    color: var(--primary);
+}
+
+.password-toggle svg {
+    width: 20px;
+    height: 20px;
+}
+
 /* ========================================
    Cards
    ======================================== */
@@ -996,33 +1030,47 @@ textarea.form-control {
     }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 1200px) {
     h1 { font-size: 2rem; }
     h2 { font-size: 1.75rem; }
 
+    .logo {
+        flex-shrink: 1;
+        overflow: hidden;
+    }
+
     .nav-toggle {
         display: flex;
+        flex-shrink: 0;
+        position: relative;
+        z-index: 1010;
+        cursor: pointer;
+        -webkit-tap-highlight-color: transparent;
+        touch-action: manipulation;
+        -webkit-touch-callout: none;
+        -webkit-user-select: none;
+        user-select: none;
+        padding: 12px;
+        margin: -12px;
+        margin-right: 0;
     }
 
     .nav-menu {
+        display: none !important;
         position: fixed;
         top: 70px;
+        z-index: 1005;
         left: 0;
         right: 0;
         background: var(--dark);
         flex-direction: column;
         padding: var(--space-lg);
         gap: 0;
-        transform: translateY(-100%);
-        opacity: 0;
-        visibility: hidden;
-        transition: all var(--transition-base);
     }
 
     .nav-menu.active {
-        transform: translateY(0);
-        opacity: 1;
-        visibility: visible;
+        display: flex !important;
+        flex-direction: column;
     }
 
     .nav-menu li {

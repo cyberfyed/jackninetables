@@ -7,34 +7,53 @@ document.addEventListener('DOMContentLoaded', function() {
     const cookieBanner = document.getElementById('cookieBanner');
     const acceptCookies = document.getElementById('acceptCookies');
 
-    if (cookieBanner && !localStorage.getItem('cookiesAccepted')) {
-        setTimeout(() => {
-            cookieBanner.classList.add('show');
-        }, 1000);
-    }
+    try {
+        if (cookieBanner && !localStorage.getItem('cookiesAccepted')) {
+            setTimeout(() => {
+                cookieBanner.classList.add('show');
+            }, 1000);
+        }
 
-    if (acceptCookies) {
-        acceptCookies.addEventListener('click', function() {
-            localStorage.setItem('cookiesAccepted', 'true');
-            cookieBanner.classList.remove('show');
-        });
+        if (acceptCookies) {
+            acceptCookies.addEventListener('click', function() {
+                try {
+                    localStorage.setItem('cookiesAccepted', 'true');
+                } catch (e) {}
+                cookieBanner.classList.remove('show');
+            });
+        }
+    } catch (e) {
+        // localStorage may be blocked in private browsing
     }
 
     // Mobile Navigation Toggle
-    const navToggle = document.querySelector('.nav-toggle');
+    const navToggle = document.getElementById('navToggle');
     const navMenu = document.querySelector('.nav-menu');
 
     if (navToggle && navMenu) {
-        navToggle.addEventListener('click', function() {
+        function toggleMenu(e) {
+            // Prevent any default behavior and stop propagation
+            if (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                e.stopImmediatePropagation();
+            }
             navMenu.classList.toggle('active');
-            navToggle.classList.toggle('active');
-        });
+            return false;
+        }
 
-        // Close menu when clicking outside
-        document.addEventListener('click', function(e) {
-            if (!navToggle.contains(e.target) && !navMenu.contains(e.target)) {
-                navMenu.classList.remove('active');
-                navToggle.classList.remove('active');
+        // Use touchstart for mobile devices (fires before click)
+        navToggle.addEventListener('touchstart', toggleMenu, { passive: false });
+
+        // Also add click for desktop/fallback, but prevent double-firing
+        let touchFired = false;
+        navToggle.addEventListener('touchend', function() {
+            touchFired = true;
+            setTimeout(function() { touchFired = false; }, 300);
+        });
+        navToggle.addEventListener('click', function(e) {
+            if (!touchFired) {
+                toggleMenu(e);
             }
         });
     }
@@ -121,6 +140,26 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
+
+    // Password Toggle Visibility
+    document.querySelectorAll('.password-toggle').forEach(function(toggle) {
+        toggle.addEventListener('click', function() {
+            const wrapper = this.closest('.password-wrapper');
+            const input = wrapper.querySelector('input');
+            const eyeOpen = this.querySelector('.eye-open');
+            const eyeClosed = this.querySelector('.eye-closed');
+
+            if (input.type === 'password') {
+                input.type = 'text';
+                eyeOpen.style.display = 'none';
+                eyeClosed.style.display = 'block';
+            } else {
+                input.type = 'password';
+                eyeOpen.style.display = 'block';
+                eyeClosed.style.display = 'none';
+            }
+        });
+    });
 });
 
 // Utility function for AJAX requests
@@ -129,7 +168,8 @@ async function fetchAPI(url, options = {}) {
         headers: {
             'Content-Type': 'application/json',
             'X-Requested-With': 'XMLHttpRequest'
-        }
+        },
+        credentials: 'same-origin'
     };
 
     const config = { ...defaults, ...options };

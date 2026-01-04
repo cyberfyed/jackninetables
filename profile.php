@@ -9,6 +9,8 @@ $userModel = new User($db->connect());
 $user = $userModel->getById($_SESSION['user_id']);
 
 $errors = [];
+$profileErrors = [];
+$passwordFieldErrors = [];
 $success = false;
 $passwordSuccess = false;
 
@@ -27,11 +29,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_profile'])) {
             'zip' => trim($_POST['zip'] ?? '')
         ];
 
-        if (empty($data['first_name']) || empty($data['last_name'])) {
-            $errors[] = 'First and last name are required.';
+        if (empty($data['first_name'])) {
+            $profileErrors['first_name'] = 'First name is required.';
+        }
+        if (empty($data['last_name'])) {
+            $profileErrors['last_name'] = 'Last name is required.';
         }
 
-        if (empty($errors)) {
+        if (empty($errors) && empty($profileErrors)) {
             $result = $userModel->update($_SESSION['user_id'], $data);
             if ($result['success']) {
                 $success = true;
@@ -52,32 +57,39 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['change_password'])) {
         $newPassword = $_POST['new_password'] ?? '';
         $confirmPassword = $_POST['confirm_password'] ?? '';
 
-        if (empty($currentPassword) || empty($newPassword)) {
-            $errors[] = 'All password fields are required.';
+        if (empty($currentPassword)) {
+            $passwordFieldErrors['current_password'] = 'Current password is required.';
+        }
+        if (empty($newPassword)) {
+            $passwordFieldErrors['new_password'] = 'New password is required.';
         } elseif (strlen($newPassword) < 8) {
-            $errors[] = 'New password must be at least 8 characters.';
+            $passwordFieldErrors['new_password'] = 'Password must be at least 8 characters.';
         } else {
+            $pwErrors = [];
             if (!preg_match('/[A-Z]/', $newPassword)) {
-                $errors[] = 'New password must contain at least one uppercase letter.';
+                $pwErrors[] = 'one uppercase letter';
             }
             if (!preg_match('/[a-z]/', $newPassword)) {
-                $errors[] = 'New password must contain at least one lowercase letter.';
+                $pwErrors[] = 'one lowercase letter';
             }
             if (!preg_match('/[0-9]/', $newPassword)) {
-                $errors[] = 'New password must contain at least one number.';
+                $pwErrors[] = 'one number';
+            }
+            if (!empty($pwErrors)) {
+                $passwordFieldErrors['new_password'] = 'Password must contain at least ' . implode(', ', $pwErrors) . '.';
             }
         }
 
         if ($newPassword !== $confirmPassword) {
-            $errors[] = 'New passwords do not match.';
+            $passwordFieldErrors['confirm_password'] = 'Passwords do not match.';
         }
 
-        if (empty($errors)) {
+        if (empty($errors) && empty($passwordFieldErrors)) {
             $result = $userModel->updatePassword($_SESSION['user_id'], $currentPassword, $newPassword);
             if ($result['success']) {
                 $passwordSuccess = true;
             } else {
-                $errors[] = $result['error'];
+                $passwordFieldErrors['current_password'] = $result['error'];
             }
         }
     }
@@ -125,14 +137,20 @@ require_once 'includes/header.php';
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
                         <div class="form-group">
                             <label class="form-label" for="first_name">First Name</label>
-                            <input type="text" id="first_name" name="first_name" class="form-control"
+                            <input type="text" id="first_name" name="first_name" class="form-control<?= isset($profileErrors['first_name']) ? ' is-invalid' : '' ?>"
                                    value="<?= sanitize($user['first_name']) ?>" required>
+                            <?php if (isset($profileErrors['first_name'])): ?>
+                                <div class="form-error"><?= sanitize($profileErrors['first_name']) ?></div>
+                            <?php endif; ?>
                         </div>
 
                         <div class="form-group">
                             <label class="form-label" for="last_name">Last Name</label>
-                            <input type="text" id="last_name" name="last_name" class="form-control"
+                            <input type="text" id="last_name" name="last_name" class="form-control<?= isset($profileErrors['last_name']) ? ' is-invalid' : '' ?>"
                                    value="<?= sanitize($user['last_name']) ?>" required>
+                            <?php if (isset($profileErrors['last_name'])): ?>
+                                <div class="form-error"><?= sanitize($profileErrors['last_name']) ?></div>
+                            <?php endif; ?>
                         </div>
                     </div>
 
@@ -192,35 +210,45 @@ require_once 'includes/header.php';
                     <div class="form-group">
                         <label class="form-label" for="current_password">Current Password</label>
                         <div class="password-wrapper">
-                            <input type="password" id="current_password" name="current_password" class="form-control" required>
+                            <input type="password" id="current_password" name="current_password" class="form-control<?= isset($passwordFieldErrors['current_password']) ? ' is-invalid' : '' ?>" required>
                             <button type="button" class="password-toggle" aria-label="Toggle password visibility">
                                 <svg class="eye-open" width="20" height="20" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
                                 <svg class="eye-closed" width="20" height="20" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="display:none;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/></svg>
                             </button>
                         </div>
+                        <?php if (isset($passwordFieldErrors['current_password'])): ?>
+                            <div class="form-error"><?= sanitize($passwordFieldErrors['current_password']) ?></div>
+                        <?php endif; ?>
                     </div>
 
                     <div class="form-group">
                         <label class="form-label" for="new_password">New Password</label>
                         <div class="password-wrapper">
-                            <input type="password" id="new_password" name="new_password" class="form-control" required>
+                            <input type="password" id="new_password" name="new_password" class="form-control<?= isset($passwordFieldErrors['new_password']) ? ' is-invalid' : '' ?>" required>
                             <button type="button" class="password-toggle" aria-label="Toggle password visibility">
                                 <svg class="eye-open" width="20" height="20" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
                                 <svg class="eye-closed" width="20" height="20" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="display:none;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/></svg>
                             </button>
                         </div>
-                        <div class="form-hint">Minimum 8 characters with uppercase, lowercase, and number</div>
+                        <?php if (isset($passwordFieldErrors['new_password'])): ?>
+                            <div class="form-error"><?= sanitize($passwordFieldErrors['new_password']) ?></div>
+                        <?php else: ?>
+                            <div class="form-hint">Minimum 8 characters with uppercase, lowercase, and number</div>
+                        <?php endif; ?>
                     </div>
 
                     <div class="form-group">
                         <label class="form-label" for="confirm_password">Confirm New Password</label>
                         <div class="password-wrapper">
-                            <input type="password" id="confirm_password" name="confirm_password" class="form-control" required>
+                            <input type="password" id="confirm_password" name="confirm_password" class="form-control<?= isset($passwordFieldErrors['confirm_password']) ? ' is-invalid' : '' ?>" required>
                             <button type="button" class="password-toggle" aria-label="Toggle password visibility">
                                 <svg class="eye-open" width="20" height="20" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
                                 <svg class="eye-closed" width="20" height="20" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="display:none;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/></svg>
                             </button>
                         </div>
+                        <?php if (isset($passwordFieldErrors['confirm_password'])): ?>
+                            <div class="form-error"><?= sanitize($passwordFieldErrors['confirm_password']) ?></div>
+                        <?php endif; ?>
                     </div>
 
                     <button type="submit" class="btn btn-primary">Change Password</button>

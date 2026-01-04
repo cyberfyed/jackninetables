@@ -22,6 +22,35 @@ class EmailService
     }
 
     /**
+     * Convert hex color code to readable color name
+     */
+    private function getColorName($hex)
+    {
+        $hex = strtolower($hex);
+        $colorMap = [
+            // Rail colors
+            '#1a1a1a' => 'Black',
+            '#3d2314' => 'Brown',
+            '#1a2744' => 'Blue',
+            '#f5f5f5' => 'White',
+            '#c4a77d' => 'Tan',
+            '#8b0000' => 'Red',
+            // Speed cloth surface colors
+            '#1a472a' => 'Green',
+            '#1a3a5c' => 'Blue',
+            '#6b1c1c' => 'Red',
+            '#3d1a4d' => 'Purple',
+            // Velveteen surface colors
+            '#2d5a3d' => 'Green',
+            '#2a4a6d' => 'Blue',
+            '#8b2c2c' => 'Red',
+            '#252525' => 'Black',
+        ];
+
+        return $colorMap[$hex] ?? $hex;
+    }
+
+    /**
      * Send email - routes to appropriate driver
      */
     public function send($to, $subject, $htmlContent, $options = [])
@@ -460,8 +489,10 @@ HTML;
         $style = $designData['tableStyle'] === 'racetrack' ? 'With Racetrack' : 'Standard Rail';
         $surface = $designData['surfaceMaterial'] === 'speedcloth' ? 'Suited Speed Cloth' : 'Velveteen';
         $cupHolders = $designData['cupHolders'] ? $designData['cupHolderCount'] . ' cup holders' : 'No cup holders';
-        $railColor = $designData['railColor'] ?? '#1a1a1a';
-        $surfaceColor = $designData['surfaceColor'] ?? '#1a472a';
+        $railColorHex = $designData['railColor'] ?? '#1a1a1a';
+        $surfaceColorHex = $designData['surfaceColor'] ?? '#1a472a';
+        $railColor = $this->getColorName($railColorHex);
+        $surfaceColor = $this->getColorName($surfaceColorHex);
         $notesText = !empty($notes) ? "Notes: " . $notes : '';
         $orderInfo = $orderNumber ? "Quote Reference: {$orderNumber}" : '';
 
@@ -502,7 +533,7 @@ HTML;
         </tr>
         <tr>
             <td>Rail Color</td>
-            <td><span class="color-swatch" style="background: {$railColor};"></span></td>
+            <td><span class="color-swatch" style="background: {$railColorHex};"></span> {$railColor}</td>
         </tr>
         <tr>
             <td>Playing Surface</td>
@@ -510,7 +541,7 @@ HTML;
         </tr>
         <tr>
             <td>Surface Color</td>
-            <td><span class="color-swatch" style="background: {$surfaceColor};"></span></td>
+            <td><span class="color-swatch" style="background: {$surfaceColorHex};"></span> {$surfaceColor}</td>
         </tr>
         <tr>
             <td>Cup Holders</td>

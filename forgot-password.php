@@ -2,27 +2,33 @@
 require_once 'config/config.php';
 require_once 'classes/User.php';
 require_once 'classes/EmailService.php';
+require_once 'classes/RateLimiter.php';
 
 if (isLoggedIn()) {
     redirect('dashboard.php');
 }
 
 $errors = [];
+$fieldErrors = [];
 $success = false;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if (!verifyCSRF($_POST['csrf_token'] ?? '')) {
+    // Rate limiting - 5 password reset attempts per minute
+    $rateLimiter = new RateLimiter();
+    if (!$rateLimiter->check('password_reset', 5)) {
+        $errors[] = getFlash('error');
+    } elseif (!verifyCSRF($_POST['csrf_token'] ?? '')) {
         $errors[] = 'Invalid request. Please try again.';
     } else {
         $email = trim($_POST['email'] ?? '');
 
         if (empty($email)) {
-            $errors[] = 'Email is required.';
+            $fieldErrors['email'] = 'Email is required.';
         } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            $errors[] = 'Please enter a valid email address.';
+            $fieldErrors['email'] = 'Please enter a valid email address.';
         }
 
-        if (empty($errors)) {
+        if (empty($errors) && empty($fieldErrors)) {
             $db = new Database();
             $user = new User($db->connect());
             $result = $user->createResetToken($email);
@@ -75,8 +81,11 @@ require_once 'includes/header.php';
 
                     <div class="form-group">
                         <label class="form-label" for="email">Email Address</label>
-                        <input type="email" id="email" name="email" class="form-control"
+                        <input type="email" id="email" name="email" class="form-control<?= isset($fieldErrors['email']) ? ' is-invalid' : '' ?>"
                                value="<?= sanitize($_POST['email'] ?? '') ?>" required>
+                        <?php if (isset($fieldErrors['email'])): ?>
+                            <div class="form-error"><?= sanitize($fieldErrors['email']) ?></div>
+                        <?php endif; ?>
                     </div>
 
                     <button type="submit" class="btn btn-primary btn-block btn-lg">Send Reset Link</button>

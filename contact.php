@@ -1,12 +1,18 @@
 <?php
 require_once 'config/config.php';
 require_once 'classes/EmailService.php';
+require_once 'classes/RateLimiter.php';
 
 $errors = [];
+$fieldErrors = [];
 $success = false;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if (!verifyCSRF($_POST['csrf_token'] ?? '')) {
+    // Rate limiting - 10 contact form submissions per minute
+    $rateLimiter = new RateLimiter();
+    if (!$rateLimiter->check('contact', 10)) {
+        $errors[] = getFlash('error');
+    } elseif (!verifyCSRF($_POST['csrf_token'] ?? '')) {
         $errors[] = 'Invalid request. Please try again.';
     } else {
         $name = trim($_POST['name'] ?? '');
@@ -16,18 +22,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $message = trim($_POST['message'] ?? '');
 
         if (empty($name)) {
-            $errors[] = 'Name is required.';
+            $fieldErrors['name'] = 'Name is required.';
         }
         if (empty($email)) {
-            $errors[] = 'Email is required.';
+            $fieldErrors['email'] = 'Email is required.';
         } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            $errors[] = 'Please enter a valid email address.';
+            $fieldErrors['email'] = 'Please enter a valid email address.';
         }
         if (empty($message)) {
-            $errors[] = 'Message is required.';
+            $fieldErrors['message'] = 'Message is required.';
         }
 
-        if (empty($errors)) {
+        if (empty($errors) && empty($fieldErrors)) {
             // Save to database
             $db = new Database();
             $conn = $db->connect();
@@ -114,14 +120,20 @@ require_once 'includes/header.php';
 
                         <div class="form-group">
                             <label class="form-label" for="name">Your Name</label>
-                            <input type="text" id="name" name="name" class="form-control"
+                            <input type="text" id="name" name="name" class="form-control<?= isset($fieldErrors['name']) ? ' is-invalid' : '' ?>"
                                 value="<?= sanitize($success ? (isLoggedIn() ? $_SESSION['user_name'] : '') : ($_POST['name'] ?? (isLoggedIn() ? $_SESSION['user_name'] : ''))) ?>" required>
+                            <?php if (isset($fieldErrors['name'])): ?>
+                                <div class="form-error"><?= sanitize($fieldErrors['name']) ?></div>
+                            <?php endif; ?>
                         </div>
 
                         <div class="form-group">
                             <label class="form-label" for="email">Email Address</label>
-                            <input type="email" id="email" name="email" class="form-control"
+                            <input type="email" id="email" name="email" class="form-control<?= isset($fieldErrors['email']) ? ' is-invalid' : '' ?>"
                                 value="<?= sanitize($success ? (isLoggedIn() ? $_SESSION['user_email'] : '') : ($_POST['email'] ?? (isLoggedIn() ? $_SESSION['user_email'] : ''))) ?>" required>
+                            <?php if (isset($fieldErrors['email'])): ?>
+                                <div class="form-error"><?= sanitize($fieldErrors['email']) ?></div>
+                            <?php endif; ?>
                         </div>
 
                         <div class="form-group">
@@ -141,7 +153,10 @@ require_once 'includes/header.php';
 
                         <div class="form-group">
                             <label class="form-label" for="message">Message</label>
-                            <textarea id="message" name="message" class="form-control" rows="5" required><?= sanitize($success ? '' : ($_POST['message'] ?? '')) ?></textarea>
+                            <textarea id="message" name="message" class="form-control<?= isset($fieldErrors['message']) ? ' is-invalid' : '' ?>" rows="5" required><?= sanitize($success ? '' : ($_POST['message'] ?? '')) ?></textarea>
+                            <?php if (isset($fieldErrors['message'])): ?>
+                                <div class="form-error"><?= sanitize($fieldErrors['message']) ?></div>
+                            <?php endif; ?>
                         </div>
 
                         <button type="submit" class="btn btn-primary btn-block btn-lg">Send Message</button>

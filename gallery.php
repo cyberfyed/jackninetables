@@ -19,11 +19,10 @@ require_once 'includes/header.php';
             <p>Each table is handcrafted with attention to detail and premium materials.</p>
         </div>
 
-        <!-- Placeholder gallery - in production, these would be actual photos -->
         <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 2rem;">
             <div class="card" style="flex: 0 1 350px; max-width: 400px;">
-                <div style="background: linear-gradient(135deg, #1a472a 0%, #2d5a3d 100%); height: 250px; display: flex; align-items: center; justify-content: center; color: white; font-size: 4rem;">
-                    &#9824;
+                <div style="background: #f5f5f5; height: 250px; display: flex; align-items: center; justify-content: center; overflow: hidden;">
+                    <img src="<?= SITE_URL ?>/assets/images/tablepic1-removebg-preview.png" alt="Custom Poker Table" style="max-width: 100%; max-height: 100%; object-fit: contain;">
                 </div>
                 <div class="card-body">
                     <h3>Classic Casino Green</h3>

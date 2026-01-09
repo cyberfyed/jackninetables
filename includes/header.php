@@ -1,8 +1,21 @@
+<?php
+// Get pending action count for logged-in users (quotes needing response)
+$pendingCustomerActions = 0;
+if (isLoggedIn()) {
+    $db = new Database();
+    $conn = $db->connect();
+    $stmt = $conn->prepare("SELECT COUNT(*) as count FROM orders WHERE user_id = ? AND status IN ('price_sent', 'invoice_sent')");
+    $stmt->execute([$_SESSION['user_id']]);
+    $pendingCustomerActions = $stmt->fetch()['count'];
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
     <title><?= isset($pageTitle) ? sanitize($pageTitle) . ' | ' : '' ?><?= SITE_NAME ?></title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -21,7 +34,7 @@
                 <span class="logo-icon">&#9827;</span>
                 Jack Nine Tables
             </a>
-            <button class="nav-toggle" aria-label="Toggle navigation">
+            <button type="button" class="nav-toggle" id="navToggle" aria-label="Toggle navigation">
                 <span></span>
                 <span></span>
                 <span></span>
@@ -36,16 +49,26 @@
                     <li class="nav-dropdown">
                         <a href="#" class="dropdown-toggle">
                             <?= sanitize($_SESSION['user_name']) ?>
+                            <?php if ($pendingCustomerActions > 0): ?>
+                                <span class="nav-badge-dot" title="<?= $pendingCustomerActions ?> quote(s) need your attention"></span>
+                            <?php endif; ?>
                             <span class="dropdown-arrow">&#9662;</span>
                         </a>
                         <ul class="dropdown-menu">
                             <li><a href="<?= SITE_URL ?>/dashboard.php">Dashboard</a></li>
                             <li><a href="<?= SITE_URL ?>/my-designs.php">My Designs</a></li>
-                            <li><a href="<?= SITE_URL ?>/my-orders.php">My Orders</a></li>
+                            <li>
+                                <a href="<?= SITE_URL ?>/my-orders.php">
+                                    My Orders
+                                    <?php if ($pendingCustomerActions > 0): ?>
+                                        <span class="nav-badge"><?= $pendingCustomerActions ?></span>
+                                    <?php endif; ?>
+                                </a>
+                            </li>
                             <li><a href="<?= SITE_URL ?>/profile.php">Profile</a></li>
                             <?php if (isAdmin()): ?>
-                            <li class="divider"></li>
-                            <li><a href="<?= SITE_URL ?>/admin/">Admin Dashboard</a></li>
+                                <li class="divider"></li>
+                                <li><a href="<?= SITE_URL ?>/admin/">Admin Dashboard</a></li>
                             <?php endif; ?>
                             <li class="divider"></li>
                             <li><a href="<?= SITE_URL ?>/logout.php">Logout</a></li>
@@ -65,19 +88,19 @@
     $flashInfo = getFlash('info');
     if ($flashSuccess || $flashError || $flashInfo):
     ?>
-    <div class="flash-messages">
-        <div class="container">
-            <?php if ($flashSuccess): ?>
-                <div class="alert alert-success"><?= sanitize($flashSuccess) ?></div>
-            <?php endif; ?>
-            <?php if ($flashError): ?>
-                <div class="alert alert-error"><?= sanitize($flashError) ?></div>
-            <?php endif; ?>
-            <?php if ($flashInfo): ?>
-                <div class="alert alert-info"><?= sanitize($flashInfo) ?></div>
-            <?php endif; ?>
+        <div class="flash-messages">
+            <div class="container">
+                <?php if ($flashSuccess): ?>
+                    <div class="alert alert-success"><?= sanitize($flashSuccess) ?></div>
+                <?php endif; ?>
+                <?php if ($flashError): ?>
+                    <div class="alert alert-error"><?= sanitize($flashError) ?></div>
+                <?php endif; ?>
+                <?php if ($flashInfo): ?>
+                    <div class="alert alert-info"><?= sanitize($flashInfo) ?></div>
+                <?php endif; ?>
+            </div>
         </div>
-    </div>
     <?php endif; ?>
 
     <main>

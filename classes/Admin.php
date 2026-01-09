@@ -97,6 +97,13 @@ class Admin
             $params[':search'] = '%' . $filters['search'] . '%';
         }
 
+        // Handle archived filter
+        if (isset($filters['archived']) && $filters['archived'] === 'only') {
+            $where[] = "o.archived_at IS NOT NULL";
+        } else {
+            $where[] = "o.archived_at IS NULL";
+        }
+
         $whereClause = !empty($where) ? 'WHERE ' . implode(' AND ', $where) : '';
 
         $query = "SELECT o.*, u.first_name, u.last_name, u.email, u.phone
@@ -135,6 +142,13 @@ class Admin
         if (!empty($filters['search'])) {
             $where[] = "(o.order_number LIKE :search OR u.first_name LIKE :search OR u.last_name LIKE :search OR u.email LIKE :search)";
             $params[':search'] = '%' . $filters['search'] . '%';
+        }
+
+        // Handle archived filter
+        if (isset($filters['archived']) && $filters['archived'] === 'only') {
+            $where[] = "o.archived_at IS NOT NULL";
+        } else {
+            $where[] = "o.archived_at IS NULL";
         }
 
         $whereClause = !empty($where) ? 'WHERE ' . implode(' AND ', $where) : '';
@@ -213,6 +227,42 @@ class Admin
         return $orders;
     }
 
+    public function archiveOrder($orderId)
+    {
+        $stmt = $this->conn->prepare("UPDATE orders SET archived_at = NOW() WHERE id = :id AND archived_at IS NULL");
+        $stmt->bindParam(':id', $orderId, PDO::PARAM_INT);
+
+        if ($stmt->execute() && $stmt->rowCount() > 0) {
+            return ['success' => true];
+        }
+
+        return ['success' => false, 'error' => 'Order not found or already archived'];
+    }
+
+    public function unarchiveOrder($orderId)
+    {
+        $stmt = $this->conn->prepare("UPDATE orders SET archived_at = NULL WHERE id = :id AND archived_at IS NOT NULL");
+        $stmt->bindParam(':id', $orderId, PDO::PARAM_INT);
+
+        if ($stmt->execute() && $stmt->rowCount() > 0) {
+            return ['success' => true];
+        }
+
+        return ['success' => false, 'error' => 'Order not found or not archived'];
+    }
+
+    public function deleteOrder($orderId)
+    {
+        $stmt = $this->conn->prepare("DELETE FROM orders WHERE id = :id");
+        $stmt->bindParam(':id', $orderId, PDO::PARAM_INT);
+
+        if ($stmt->execute()) {
+            return ['success' => true];
+        }
+
+        return ['success' => false, 'error' => 'Delete failed'];
+    }
+
     // ========== MESSAGES ==========
 
     public function getAllMessages($filters = [], $limit = 20, $offset = 0)
@@ -228,6 +278,13 @@ class Admin
         if (!empty($filters['search'])) {
             $where[] = "(name LIKE :search OR email LIKE :search OR subject LIKE :search)";
             $params[':search'] = '%' . $filters['search'] . '%';
+        }
+
+        // Handle archived filter
+        if (isset($filters['archived']) && $filters['archived'] === 'only') {
+            $where[] = "archived_at IS NOT NULL";
+        } else {
+            $where[] = "archived_at IS NULL";
         }
 
         $whereClause = !empty($where) ? 'WHERE ' . implode(' AND ', $where) : '';
@@ -261,6 +318,13 @@ class Admin
         if (!empty($filters['search'])) {
             $where[] = "(name LIKE :search OR email LIKE :search OR subject LIKE :search)";
             $params[':search'] = '%' . $filters['search'] . '%';
+        }
+
+        // Handle archived filter
+        if (isset($filters['archived']) && $filters['archived'] === 'only') {
+            $where[] = "archived_at IS NOT NULL";
+        } else {
+            $where[] = "archived_at IS NULL";
         }
 
         $whereClause = !empty($where) ? 'WHERE ' . implode(' AND ', $where) : '';
@@ -299,6 +363,30 @@ class Admin
         $stmt->bindParam(':id', $id, PDO::PARAM_INT);
 
         return $stmt->execute();
+    }
+
+    public function archiveMessage($messageId)
+    {
+        $stmt = $this->conn->prepare("UPDATE contact_messages SET archived_at = NOW() WHERE id = :id AND archived_at IS NULL");
+        $stmt->bindParam(':id', $messageId, PDO::PARAM_INT);
+
+        if ($stmt->execute() && $stmt->rowCount() > 0) {
+            return ['success' => true];
+        }
+
+        return ['success' => false, 'error' => 'Message not found or already archived'];
+    }
+
+    public function unarchiveMessage($messageId)
+    {
+        $stmt = $this->conn->prepare("UPDATE contact_messages SET archived_at = NULL WHERE id = :id AND archived_at IS NOT NULL");
+        $stmt->bindParam(':id', $messageId, PDO::PARAM_INT);
+
+        if ($stmt->execute() && $stmt->rowCount() > 0) {
+            return ['success' => true];
+        }
+
+        return ['success' => false, 'error' => 'Message not found or not archived'];
     }
 
     public function getRecentMessages($limit = 5)

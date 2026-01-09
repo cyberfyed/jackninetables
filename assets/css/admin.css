@@ -297,6 +297,17 @@
     background: rgba(239, 68, 68, 0.2);
 }
 
+.table-action.archive {
+    background: rgba(107, 114, 128, 0.1);
+    color: #6b7280;
+    border: none;
+    cursor: pointer;
+}
+
+.table-action.archive:hover {
+    background: rgba(107, 114, 128, 0.2);
+}
+
 /* Status Badges */
 .status-badge {
     display: inline-flex;

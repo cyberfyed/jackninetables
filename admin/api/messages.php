@@ -49,6 +49,16 @@ switch ($action) {
         echo json_encode(['success' => $result]);
         break;
 
+    case 'archive':
+        $result = $admin->archiveMessage($messageId);
+        echo json_encode($result);
+        break;
+
+    case 'unarchive':
+        $result = $admin->unarchiveMessage($messageId);
+        echo json_encode($result);
+        break;
+
     default:
         echo json_encode(['success' => false, 'error' => 'Invalid action']);
 }

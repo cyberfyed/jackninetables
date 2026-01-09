@@ -62,6 +62,21 @@ switch ($action) {
         echo json_encode($result);
         break;
 
+    case 'archive':
+        $result = $admin->archiveOrder($orderId);
+        echo json_encode($result);
+        break;
+
+    case 'unarchive':
+        $result = $admin->unarchiveOrder($orderId);
+        echo json_encode($result);
+        break;
+
+    case 'delete':
+        $result = $admin->deleteOrder($orderId);
+        echo json_encode($result);
+        break;
+
     default:
         echo json_encode(['success' => false, 'error' => 'Invalid action']);
 }

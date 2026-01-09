@@ -22,6 +22,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Verify CSRF
     elseif (!verifyCSRF($_POST['csrf_token'] ?? '')) {
         $errors[] = 'Invalid request. Please try again.';
+    }
+    // Honeypot check - if filled, it's a bot
+    elseif (!empty($_POST['website'])) {
+        // Silently pretend success and redirect
+        setFlash('info', 'Account created! Please check your email to verify your account.');
+        redirect('login.php');
+    }
+    // Time check - form submitted too fast (under 5 seconds for registration = bot)
+    elseif (intval($_POST['_t'] ?? 0) === 0 || (time() - intval($_POST['_t'] ?? 0)) < 5) {
+        // Too fast, likely a bot - silently reject
+        setFlash('info', 'Account created! Please check your email to verify your account.');
+        redirect('login.php');
     } else {
         $formData = [
             'first_name' => trim($_POST['first_name'] ?? ''),
@@ -111,6 +123,12 @@ require_once 'includes/header.php';
 
             <form method="POST" action="" data-validate novalidate>
                 <input type="hidden" name="csrf_token" value="<?= getCSRFToken() ?>">
+                <input type="hidden" name="_t" value="<?= time() ?>">
+                <!-- Honeypot field - hidden from humans, bots fill it out -->
+                <div style="position: absolute; left: -9999px;" aria-hidden="true">
+                    <label for="website">Website</label>
+                    <input type="text" id="website" name="website" tabindex="-1" autocomplete="off">
+                </div>
 
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
                     <div class="form-group">

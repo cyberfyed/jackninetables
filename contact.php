@@ -15,6 +15,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } elseif (!verifyCSRF($_POST['csrf_token'] ?? '')) {
         $errors[] = 'Invalid request. Please try again.';
     } else {
+        // Honeypot check - if filled, it's a bot
+        if (!empty($_POST['website'])) {
+            // Silently reject but pretend success so bot doesn't know
+            $success = true;
+            goto skip_processing;
+        }
+
+        // Time check - form submitted too fast (under 3 seconds = bot)
+        $formTime = intval($_POST['_t'] ?? 0);
+        if ($formTime === 0 || (time() - $formTime) < 3) {
+            // Too fast, likely a bot - silently reject
+            $success = true;
+            goto skip_processing;
+        }
         $name = trim($_POST['name'] ?? '');
         $email = trim($_POST['email'] ?? '');
         $phone = trim($_POST['phone'] ?? '');
@@ -65,6 +79,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $errors[] = 'Failed to send message. Please try again.';
             }
         }
+        skip_processing:
     }
 }
 
@@ -117,6 +132,12 @@ require_once 'includes/header.php';
 
                     <form method="POST" action="" data-validate novalidate>
                         <input type="hidden" name="csrf_token" value="<?= getCSRFToken() ?>">
+                        <input type="hidden" name="_t" value="<?= time() ?>">
+                        <!-- Honeypot field - hidden from humans, bots fill it out -->
+                        <div style="position: absolute; left: -9999px;" aria-hidden="true">
+                            <label for="website">Website</label>
+                            <input type="text" id="website" name="website" tabindex="-1" autocomplete="off">
+                        </div>
 
                         <div class="form-group">
                             <label class="form-label" for="name">Your Name</label>

@@ -39,6 +39,11 @@ switch ($action) {
         echo json_encode($result);
         break;
 
+    case 'delete_user':
+        $result = $admin->deleteUser($userId);
+        echo json_encode($result);
+        break;
+
     default:
         echo json_encode(['success' => false, 'error' => 'Invalid action']);
 }

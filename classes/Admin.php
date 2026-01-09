@@ -457,4 +457,52 @@ class Admin
 
         return ['success' => false, 'error' => 'Update failed'];
     }
+
+    public function deleteUser($userId)
+    {
+        // Don't allow self-deletion
+        if ($userId == $_SESSION['user_id']) {
+            return ['success' => false, 'error' => 'You cannot delete your own account'];
+        }
+
+        // Check if user exists and is not an admin
+        $stmt = $this->conn->prepare("SELECT is_admin, first_name, last_name FROM users WHERE id = :id");
+        $stmt->bindParam(':id', $userId, PDO::PARAM_INT);
+        $stmt->execute();
+        $user = $stmt->fetch();
+
+        if (!$user) {
+            return ['success' => false, 'error' => 'User not found'];
+        }
+
+        if ($user['is_admin']) {
+            return ['success' => false, 'error' => 'Cannot delete admin users. Remove admin status first.'];
+        }
+
+        try {
+            $this->conn->beginTransaction();
+
+            // Delete user's designs
+            $stmt = $this->conn->prepare("DELETE FROM table_designs WHERE user_id = :user_id");
+            $stmt->bindParam(':user_id', $userId, PDO::PARAM_INT);
+            $stmt->execute();
+
+            // Delete user's orders
+            $stmt = $this->conn->prepare("DELETE FROM orders WHERE user_id = :user_id");
+            $stmt->bindParam(':user_id', $userId, PDO::PARAM_INT);
+            $stmt->execute();
+
+            // Delete the user
+            $stmt = $this->conn->prepare("DELETE FROM users WHERE id = :id");
+            $stmt->bindParam(':id', $userId, PDO::PARAM_INT);
+            $stmt->execute();
+
+            $this->conn->commit();
+
+            return ['success' => true, 'message' => 'User ' . $user['first_name'] . ' ' . $user['last_name'] . ' deleted'];
+        } catch (Exception $e) {
+            $this->conn->rollBack();
+            return ['success' => false, 'error' => 'Delete failed: ' . $e->getMessage()];
+        }
+    }
 }

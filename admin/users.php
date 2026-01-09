@@ -118,6 +118,10 @@ $queryString = http_build_query($queryParams);
                         <td data-label="">
                             <div class="table-actions">
                                 <a href="<?= SITE_URL ?>/admin/user-detail.php?id=<?= $user['id'] ?>" class="table-action view">View</a>
+                                <?php if (!$user['is_admin'] && $user['id'] != $_SESSION['user_id']): ?>
+                                    <button type="button" class="table-action delete"
+                                            onclick="deleteUser(<?= $user['id'] ?>, '<?= sanitize($user['first_name'] . ' ' . $user['last_name']) ?>')">Delete</button>
+                                <?php endif; ?>
                             </div>
                         </td>
                     </tr>
@@ -150,4 +154,67 @@ $queryString = http_build_query($queryParams);
     <?php endif; ?>
 </div>
 
-<?php require_once 'includes/admin-footer.php'; ?>
+<?php
+$extraJS = <<<'JS'
+<script>
+function deleteUser(userId, userName) {
+    confirmModal.message.textContent = `Are you sure you want to delete "${userName}"? This will also delete all their designs and orders. This cannot be undone.`;
+    confirmModal.confirmBtn.className = 'btn btn-danger confirm-modal-confirm';
+    confirmModal.modal.classList.add('active');
+
+    // Remove any existing event listener
+    const newConfirmBtn = confirmModal.confirmBtn.cloneNode(true);
+    confirmModal.confirmBtn.parentNode.replaceChild(newConfirmBtn, confirmModal.confirmBtn);
+    confirmModal.confirmBtn = newConfirmBtn;
+
+    confirmModal.confirmBtn.addEventListener('click', async () => {
+        confirmModal.confirmBtn.disabled = true;
+        confirmModal.confirmBtn.textContent = 'Deleting...';
+
+        try {
+            const response = await fetch(`${SITE_URL}/admin/api/users.php`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify({
+                    action: 'delete_user',
+                    user_id: userId,
+                    csrf_token: CSRF_TOKEN
+                })
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                // Remove the row from the table
+                const row = document.querySelector(`tr button[onclick*="deleteUser(${userId},"]`).closest('tr');
+                row.style.opacity = '0';
+                row.style.transition = 'opacity 0.3s';
+                setTimeout(() => {
+                    row.remove();
+                    // Update the count in the header
+                    const title = document.querySelector('.admin-table-title');
+                    const match = title.textContent.match(/\((\d+)\)/);
+                    if (match) {
+                        const newCount = parseInt(match[1]) - 1;
+                        title.textContent = `Users (${newCount})`;
+                    }
+                }, 300);
+                confirmModal.hide();
+            } else {
+                alert(data.error || 'Failed to delete user');
+                confirmModal.confirmBtn.disabled = false;
+                confirmModal.confirmBtn.textContent = 'Confirm';
+            }
+        } catch (error) {
+            alert('Error deleting user');
+            confirmModal.confirmBtn.disabled = false;
+            confirmModal.confirmBtn.textContent = 'Confirm';
+        }
+    });
+}
+</script>
+JS;
+require_once 'includes/admin-footer.php'; ?>

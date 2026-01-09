@@ -26,6 +26,10 @@ $currentPage = basename($_SERVER['PHP_SELF'], '.php');
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="<?= SITE_URL ?>/assets/css/style.css">
     <link rel="stylesheet" href="<?= SITE_URL ?>/assets/css/admin.css">
+    <script>
+        const SITE_URL = '<?= SITE_URL ?>';
+        const CSRF_TOKEN = '<?= getCSRFToken() ?>';
+    </script>
 </head>
 <body>
     <div class="admin-layout">
